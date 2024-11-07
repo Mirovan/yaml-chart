@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <title>YAML Chart</title>
+    <script src="dist/main.js" type="module"></script>
+</head>
+<body>
+
+
+<!--<input id="goBtn" type="button" />-->
+
+<div class="container">
+    <div class="row">
+        <div id="left-panel" class="col-1">
+            <textarea id="yaml-text">
+objects:
+    ingress1:
+        name: ingress1
+        type: box
+
+    service1:
+        name: service1
+        type: box
+
+    deployment1:
+        name: depl1
+        type: box
+
+relations:
+    ingress1-service1:
+        from: ingress1
+        to: service1
+</textarea>
+        </div>
+    </div>
+    <div class="row">
+        <div id="watman-container" class="col p-2">
+            <div id="watman" class="col"></div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
