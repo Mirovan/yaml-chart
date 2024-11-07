@@ -1,0 +1,17 @@
+data:
+  layout: column
+  objects:
+    ingress1:
+      type: box
+      name: ingress1
+    service1:
+      type: box
+      name: service1
+    deployment1:
+      type: box
+      name: depl1
+
+relations:
+  ingress1-service1:
+    from: ingress1
+    to: service1

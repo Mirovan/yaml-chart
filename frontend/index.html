@@ -13,23 +13,30 @@
     <div class="row">
         <div id="left-panel" class="col-1">
             <textarea id="yaml-text">
-objects:
-    ingress1:
-        name: ingress1
-        type: box
-
-    service1:
-        name: service1
-        type: box
-
-    deployment1:
-        name: depl1
-        type: box
+data:
+  layout: column
+  objects:
+    container1:
+      type: container
+      objects:
+        container2:
+          type: container
+          layout: inline
+          objects:
+            ingress1:
+              type: box
+              name: ingress1
+            service1:
+              type: box
+              name: service1
+            deployment1:
+              type: box
+              name: depl1
 
 relations:
-    ingress1-service1:
-        from: ingress1
-        to: service1
+  ingress1-service1:
+    from: ingress1
+    to: service1
 </textarea>
         </div>
     </div>
