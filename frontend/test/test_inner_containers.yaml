@@ -1,20 +1,29 @@
 data:
+  color: "#aeeeee"
   layout: column
   objects:
     container1:
+      color: "#eeaeee"
       type: container
+      layout: inline
+      name: container1
       objects:
         container2:
+          color: "#eeeeae"
           type: container
           layout: inline
+          name: container2
           objects:
             ingress1:
+              color: "#eeeeee"
               type: box
               name: ingress1
             service1:
+              color: "#eeeeee"
               type: box
               name: service1
             deployment1:
+              color: "#eeeeee"
               type: box
               name: depl1
 

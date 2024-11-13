@@ -13,30 +13,44 @@
     <div class="row">
         <div id="left-panel" class="col-1">
             <textarea id="yaml-text">
+
 data:
+  color: "#aeeeee"
   layout: column
   objects:
     container1:
+      color: "#eeaeee"
       type: container
+      layout: inline
+      name: container1
       objects:
         container2:
+          color: "#eeeeae"
           type: container
           layout: inline
+          name: container2
           objects:
             ingress1:
+              color: "#eeeeee"
               type: box
               name: ingress1
-            service1:
+        container3:
+          color: "#eeeeae"
+          type: container
+          layout: inline
+          name: container3
+          objects:
+            ingress2:
+              color: "#eeeeee"
               type: box
-              name: service1
-            deployment1:
-              type: box
-              name: depl1
+              name: ingress2
+
 
 relations:
   ingress1-service1:
     from: ingress1
     to: service1
+
 </textarea>
         </div>
     </div>

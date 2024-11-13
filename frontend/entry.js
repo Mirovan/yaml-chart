@@ -2,53 +2,121 @@ import "./css/styles.scss";
 
 import Konva from 'konva';
 import YAML from 'yaml';
+import * as Func from "./functions.js";
 
 const defaultBoxWidth = 100;
 const defaultBoxHeight = 50;
+const defaultMarginX = 10;
+const defaultMarginY = 10;
 
 /*
 * Расчет координат для каждого объекта.
 * Координаты расстановки объектов - относительные
+* startX, startY - начальные координаты расчета установки относительно родителя
 * */
-function calcLayout(objects, startX, startY) {
-    console.log(objects);
-    let currentX = 0;
-    let currentY = 0;
+function calcLayout(objects, parent) {
+    let startObjX = defaultMarginX;
+    let startObjY = defaultMarginY;
+    let endObjX = startObjX + defaultBoxWidth;
+    let endObjY = startObjY + defaultBoxHeight;
 
     //Для каждого объекта вычисляем куда его поставить
     for (let key of objects.keys()) {
         const obj = objects.get(key);
 
-        //Если у объекта дочерние объекты, то вычисляем куда их поставить
-        if (obj.objects != null) {
-            obj.objects = calcLayout(obj.objects, 0, 0);
+        //Начальные размеры объекта
+        if (Func.isNull(obj.x)) {
+            //Обновляем X для объекта
+            obj.x = startObjX;
         }
-        if (obj.x == null) {
-            obj.x = 0;
+        if (Func.isNull(obj.y)) {
+            //Обновляем Y для объекта
+            obj.y = startObjY;
         }
-        if (obj.y == null) {
-            obj.y = 0;
+        if (Func.isNull(obj.width)) {
+            obj.width = defaultBoxWidth;
         }
-        obj.y += currentY + defaultBoxHeight;
+        if (Func.isNull(obj.height)) {
+            obj.height = defaultBoxHeight;
+        }
 
-        //Обновляем Y для объекта
-        currentY += defaultBoxHeight;
+        //Если у объекта дочерние объекты, то вычисляем куда их поставить
+        if (Func.notNull(obj.objects)) {
+            obj.objects = calcLayout(obj.objects, obj);
+
+            //Когда посчитали координаты всех внутренних объектов - вычисляем размер родителя-контейнера
+            for (let k of obj.objects.keys()) {
+                const tempObj = obj.objects.get(k);
+                endObjX = Math.max(endObjX, tempObj.x + tempObj.width);
+                endObjY = Math.max(endObjY, tempObj.y + tempObj.height);
+            }
+
+            //обновляем вторую границу родительского объекта
+            endObjX += defaultMarginX;
+            endObjY += defaultMarginY;
+            obj.width = endObjX;
+            obj.height = endObjY;
+        }
+
+
+
+        if (obj.name === "container3") {
+
+        }
+
+        if (Func.notNull(parent)) {
+            //стиль размещения объектов указанный у родительского контейнера
+            if (Func.isNull(parent.layout) || parent.layout === "inline") {
+                //Координата вставки следующего элемента
+                startObjX = endObjX + defaultMarginX;
+            } else if (parent.layout === "column") {
+                //Координата вставки следующего элемента
+                startObjY = endObjY + defaultMarginY;
+            }
+        }
+
+        console.log(obj.name, startObjX, startObjY);
+        console.log(obj.name, endObjX, endObjY);
     }
+    return objects;
 }
 
 
 /*
-* Преобразовывает рекурсивно объект в Map с вложенными объектам
+* Отрисовка
 * */
-function toMap(objects) {
-    let map = new Map(Object.entries(objects));
-    for (let key of map.keys()) {
-        if (map.get(key).objects != null) {
-            map.get(key).objects = toMap(map.get(key).objects);
+function draw(objects, parent, dx, dy, canvasLayer) {
+    console.log(objects);
+
+    if (Func.notNull(parent)) {
+        dx += parent.x;
+        dy += parent.y;
+    }
+
+    //Перебираем все объекты
+    for (let key of objects.keys()) {
+        const obj = objects.get(key);
+
+        const rect = new Konva.Rect({
+            x: obj.x + dx,
+            y: obj.y + dy,
+            width: obj.width,
+            height: obj.height,
+            fill: obj.color,
+            stroke: 'black',
+            strokeWidth: 2,
+            draggable: true
+        });
+        canvasLayer.add(rect);
+
+        if (Func.notNull(obj.objects)) {
+            draw(obj.objects, obj, dx, dy, canvasLayer);
         }
     }
-    return map;
 }
+
+
+/**********************************************************************************/
 
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -70,11 +138,14 @@ document.addEventListener('DOMContentLoaded', function () {
     let data = new Map(Object.entries(yamlData.data));
     let relations = new Map(Object.entries(yamlData.relations));
 
-    const objects = toMap(data.get("objects"));
+    const objects = Func.toMap(data.get("objects"));
 
-    if (data.get("layout") === "column") {
-        calcLayout(objects, 0, 0);
-    }
+    //Вычисление координат
+    calcLayout(objects, null);
+
+    //Отрисовка
+    draw(objects, null, 0, 0, canvasLayer);
+
 
     /*
     //перебираем все связи
