@@ -9,74 +9,82 @@ const defaultBoxHeight = 50;
 const defaultMarginX = 10;
 const defaultMarginY = 10;
 
+/*Инициализация объекта и задание его границ*/
+
+function initObject(obj, lastObj, parent) {
+    //Начальная координата для вставки объекта
+    let startObjX = defaultMarginX;
+    let startObjY = defaultMarginY;
+
+    //Если какой-то объект (от того же родителя) уже стоит
+    if (lastObj != null) {
+        //По умолчанию располагаем объекта справа = inline
+        startObjX = lastObj.x + lastObj.width + defaultMarginX;
+        startObjY = lastObj.y;
+        //Если есть родитель у этих объектов, то проверяем ставить справа или вниз
+        if (Func.notNull(parent)) {
+            if (parent.layout === "column") {
+                startObjX = lastObj.x;
+                startObjY = lastObj.y + lastObj.height + defaultMarginY;
+            }
+        }
+    }
+
+    //Начальные размеры объекта
+    if (Func.isNull(obj.x)) {
+        //Обновляем X для объекта
+        obj.x = startObjX;
+    }
+    if (Func.isNull(obj.y)) {
+        //Обновляем Y для объекта
+        obj.y = startObjY;
+    }
+    if (Func.isNull(obj.width)) {
+        obj.width = defaultBoxWidth;
+    }
+    if (Func.isNull(obj.height)) {
+        obj.height = defaultBoxHeight;
+    }
+
+    return obj;
+}
+
+
 /*
 * Расчет координат для каждого объекта.
 * Координаты расстановки объектов - относительные
 * startX, startY - начальные координаты расчета установки относительно родителя
 * */
 function calcLayout(objects, parent) {
-    let startObjX = defaultMarginX;
-    let startObjY = defaultMarginY;
-    let endObjX = startObjX + defaultBoxWidth;
-    let endObjY = startObjY + defaultBoxHeight;
+    console.log(parent);
+
+    let lastObj = null;
 
     //Для каждого объекта вычисляем куда его поставить
     for (let key of objects.keys()) {
-        const obj = objects.get(key);
-
-        //Начальные размеры объекта
-        if (Func.isNull(obj.x)) {
-            //Обновляем X для объекта
-            obj.x = startObjX;
-        }
-        if (Func.isNull(obj.y)) {
-            //Обновляем Y для объекта
-            obj.y = startObjY;
-        }
-        if (Func.isNull(obj.width)) {
-            obj.width = defaultBoxWidth;
-        }
-        if (Func.isNull(obj.height)) {
-            obj.height = defaultBoxHeight;
-        }
+        //Инициализируем координаты и размер объекта
+        const obj = initObject(objects.get(key), lastObj, parent);
 
         //Если у объекта дочерние объекты, то вычисляем куда их поставить
         if (Func.notNull(obj.objects)) {
             obj.objects = calcLayout(obj.objects, obj);
 
+            let widthObjX = obj.width;
+            let heightObjX = obj.height;
+
             //Когда посчитали координаты всех внутренних объектов - вычисляем размер родителя-контейнера
             for (let k of obj.objects.keys()) {
                 const tempObj = obj.objects.get(k);
-                endObjX = Math.max(endObjX, tempObj.x + tempObj.width);
-                endObjY = Math.max(endObjY, tempObj.y + tempObj.height);
+                widthObjX = Math.max(widthObjX, tempObj.x + tempObj.width);
+                heightObjX = Math.max(heightObjX, tempObj.y + tempObj.height);
             }
 
             //обновляем вторую границу родительского объекта
-            endObjX += defaultMarginX;
-            endObjY += defaultMarginY;
-            obj.width = endObjX;
-            obj.height = endObjY;
+            obj.width = widthObjX + defaultMarginX;
+            obj.height = heightObjX + defaultMarginY;
         }
 
-
-
-        if (obj.name === "container3") {
-
-        }
-
-        if (Func.notNull(parent)) {
-            //стиль размещения объектов указанный у родительского контейнера
-            if (Func.isNull(parent.layout) || parent.layout === "inline") {
-                //Координата вставки следующего элемента
-                startObjX = endObjX + defaultMarginX;
-            } else if (parent.layout === "column") {
-                //Координата вставки следующего элемента
-                startObjY = endObjY + defaultMarginY;
-            }
-        }
-
-        console.log(obj.name, startObjX, startObjY);
-        console.log(obj.name, endObjX, endObjY);
+        lastObj = obj;
     }
     return objects;
 }
@@ -86,8 +94,6 @@ function calcLayout(objects, parent) {
 * Отрисовка
 * */
 function draw(objects, parent, dx, dy, canvasLayer) {
-    console.log(objects);
-
     if (Func.notNull(parent)) {
         dx += parent.x;
         dy += parent.y;
@@ -138,10 +144,11 @@ document.addEventListener('DOMContentLoaded', function () {
     let data = new Map(Object.entries(yamlData.data));
     let relations = new Map(Object.entries(yamlData.relations));
 
+    const parent = Func.toMap(data);
     const objects = Func.toMap(data.get("objects"));
 
     //Вычисление координат
-    calcLayout(objects, null);
+    calcLayout(objects, parent);
 
     //Отрисовка
     draw(objects, null, 0, 0, canvasLayer);
