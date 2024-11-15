@@ -12,11 +12,6 @@ const defaultMarginY = 10;
 /*Инициализация объекта и задание его границ*/
 
 function initObject(obj, lastObj, parent) {
-    if (obj.name === "ingress2") {
-        console.log(obj);
-        console.log(lastObj);
-        console.log(parent);
-    }
     //Начальная координата для вставки объекта
     let startObjX = defaultMarginX;
     let startObjY = defaultMarginY;
@@ -92,43 +87,12 @@ function calcLayout(object, lastObj, parent) {
         object.height = heightObjX + defaultMarginY;
     }
 
-
-
-    /*
-    //Для каждого объекта вычисляем куда его поставить
-    for (let key of innerObjects.keys()) {
-        //Инициализируем координаты и размер объекта
-        const obj = initObject(innerObjects.get(key), lastObj, parent);
-
-        //Если у объекта дочерние объекты, то вычисляем куда их поставить
-        if (Func.notNull(obj.objects)) {
-            obj.objects = calcLayout(obj.objects, obj);
-
-            let widthObjX = obj.width;
-            let heightObjX = obj.height;
-
-            //Когда посчитали координаты всех внутренних объектов - вычисляем размер родителя-контейнера
-            for (let k of obj.objects.keys()) {
-                const tempObj = obj.objects.get(k);
-                widthObjX = Math.max(widthObjX, tempObj.x + tempObj.width);
-                heightObjX = Math.max(heightObjX, tempObj.y + tempObj.height);
-            }
-
-            //обновляем вторую границу родительского объекта
-            obj.width = widthObjX + defaultMarginX;
-            obj.height = heightObjX + defaultMarginY;
-        }
-
-        lastObj = obj;
-    }
-     */
-
     return object;
 }
 
 
 /*
-* Отрисовка
+* Отрисовка объектов
 * object - рисуемый объект
 * parent - родительский объект
 * dx, dy - отступ с учетом относительных координат
@@ -148,9 +112,21 @@ function draw(object, parent, dx, dy, canvasLayer) {
         fill: object.color,
         stroke: 'black',
         strokeWidth: 2,
-        draggable: true
+        draggable: false
     });
     canvasLayer.add(rect);
+
+    const text = new Konva.Text({
+        x: object.x + dx,
+        y: object.y + dy,
+        width: object.width,
+        height: object.height,
+        text: object.name,
+        fontSize: 14,
+        fontFamily: 'Calibri',
+        align: 'center',
+    });
+    canvasLayer.add(text);
 
     //Перебираем все объекты
     const innerObjects = object.objects;
@@ -163,6 +139,18 @@ function draw(object, parent, dx, dy, canvasLayer) {
     }
 }
 
+
+/*
+* Расчет линий
+* */
+function calcPathes(relationObject) {
+    let relations = new Map(Object.entries(relationObject));
+    console.log(relations);
+
+    for (let key of relations.keys()) {
+        const rel = innerObjects.get(key);
+    }
+}
 
 /**********************************************************************************/
 
@@ -180,22 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     stage.add(canvasLayer);
 
-
     const yamlData = YAML.parse(document.getElementById("yaml-text").value);
-    let data = new Map(Object.entries(yamlData.data));
-    let relations = new Map(Object.entries(yamlData.relations));
-
-    // const parent = Func.toMap(data);
-    // const objects = Func.toMap(data.get("objects"));
-
-    // console.log(yamlData.data);
-    // console.log(data);
-    // console.log(data.get("objects"));
-    // console.log(objects);
-    // console.log("=============");
-
-    // console.log(data);
-    // console.log(objects);
 
     //Вычисление координат
     const object = calcLayout(yamlData.data, null, null);
@@ -203,40 +176,6 @@ document.addEventListener('DOMContentLoaded', function () {
     //Отрисовка
     draw(object, null, 0, 0, canvasLayer);
 
-
-    /*
-    //перебираем все связи
-    for (const key of relations.keys()) {
-        const relation = relations.get(key);
-        const from = objects.get(relation.from);
-        const to = objects.get(relation.to);
-
-        from.x = 0;
-        from.y = 0;
-
-        //По связи рисуем два объекта исходя их связи
-        const rect1 = new Konva.Rect({
-            x: from.x,
-            y: from.y,
-            width: 100,
-            height: 50,
-            fill: '#eeeeee',
-            stroke: 'black',
-            strokeWidth: 2,
-        });
-        canvasLayer.add(rect1);
-
-        const rect2 = new Konva.Rect({
-            x: to.x,
-            y: to.y,
-            width: 100,
-            height: 50,
-            fill: '#eeeeee',
-            stroke: 'black',
-            strokeWidth: 2,
-        });
-        canvasLayer.add(rect2);
-    }
-     */
-
+    //Вычисление координат
+    const relations = calcPathes(yamlData.relations);
 });
