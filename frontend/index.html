@@ -15,39 +15,46 @@
             <textarea id="yaml-text">
 
 data:
-  color: "#aeeeee"
-  layout: column
+  color: "#ededed"
+  layout: inline
   objects:
-    container1:
-      color: "#eeaeee"
+    container2:
+      color: "#949494"
+      type: container
+      layout: column
+      name: container2
+      objects:
+        ingress1:
+          color: "#eeeeee"
+          type: box
+          name: ingress1
+        service1:
+          color: "#eeeeee"
+          type: box
+          name: service1
+        deployment1:
+          color: "#eeeeee"
+          type: box
+          name: depl1
+
+    container3:
+      color: "#949494"
       type: container
       layout: inline
-      name: container1
+      name: container3
       objects:
-        container2:
-          color: "#eeeeae"
-          type: container
-          layout: column
-          name: container2
-          objects:
-            ingress1:
-              color: "#eeeeee"
-              type: box
-              name: ingress1
-            ingress11:
-              color: "#eeeeee"
-              type: box
-              name: ingress11
-        container3:
-          color: "#eeeeae"
-          type: container
-          layout: inline
-          name: container3
-          objects:
-            ingress2:
-              color: "#eeeeee"
-              type: box
-              name: ingress2
+        ingress1:
+          color: "#eeeeee"
+          type: box
+          name: ingress1
+        service1:
+          color: "#eeeeee"
+          type: box
+          name: service1
+        deployment1:
+          color: "#eeeeee"
+          type: box
+          name: depl1
 
 
 relations:
