@@ -3,9 +3,10 @@ import "./css/styles.scss";
 import Konva from 'konva';
 import YAML from 'yaml';
 import * as Func from "./functions.js";
+import * as Relation from "./relation.js";
 
 const defaultBoxWidth = 100;
-const defaultBoxHeight = 50;
+const defaultBoxHeight = 60;
 const defaultMarginX = 10;
 const defaultMarginY = 10;
 
@@ -141,15 +142,38 @@ function draw(object, parent, dx, dy, canvasLayer) {
 
 
 /*
-* Расчет линий
+* Преобразование объекта data и всех внутренних объектов в плоскую map
+* Ключ - имя контейнера
+* Значение - данные объекта
 * */
-function calcPathes(relationObject) {
-    let relations = new Map(Object.entries(relationObject));
-    console.log(relations);
+function dataObjectToMap(object, parent) {
+    let map = new Map();
 
-    for (let key of relations.keys()) {
-        const rel = innerObjects.get(key);
+    console.log(object.objects);
+
+    //Если есть внутренние объекты
+    if (Func.notNull(object.objects)) {
+        //смотрим все внутренние объекты
+        for (let objKey of object.objects.keys()) {
+            let innerObj = object.objects.get(objKey);
+            //Если у просматриваемого объета есть у объекта внутренние
+            if (Func.notNull(innerObj.objects)) {
+                const subMap = dataObjectToMap(innerObj, objKey);
+                //Join to main map
+                // map = new Map([map, subMap]);
+                for (let key of subMap.keys()) {
+                    map.set(key, subMap.get(key));
+                }
+            }
+            innerObj.parent = parent;
+            innerObj.objects = null;
+            map.set(objKey, innerObj);
+        }
     }
+
+    console.log(map);
+
+    return map;
 }
 
 /**********************************************************************************/
@@ -176,6 +200,11 @@ document.addEventListener('DOMContentLoaded', function () {
     //Отрисовка
     draw(object, null, 0, 0, canvasLayer);
 
+    //Список всех объектов в плоской структуре
+    const objectMap = dataObjectToMap(object, null);
+    // console.log(objectMap);
+
+
     //Вычисление координат
-    const relations = calcPathes(yamlData.relations);
+    const relations = Relation.calcPathes(yamlData.relations, objectMap);
 });
