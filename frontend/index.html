@@ -35,7 +35,7 @@ data:
         deployment1:
           color: "#eeeeee"
           type: box
-          name: depl1
+          name: deployment1
 
     container3:
       color: "#cfcfcf"
@@ -54,13 +54,13 @@ data:
         deployment2:
           color: "#eeeeee"
           type: box
-          name: depl2
+          name: deployment2
 
 
 relations:
-  ingress1-service1:
-    from: ingress1
-    to: service1
+  service1-ingress2:
+    from: service1
+    to: deployment1
 
 </textarea>
         </div>
