@@ -24,23 +24,28 @@ document.addEventListener('DOMContentLoaded', function () {
     const yamlData = YAML.parse(document.getElementById("yaml-text").value);
 
     //Вычисление координат
-    const object = Box.calcLayout(yamlData.data, null, null);
+    const diagramObj = Box.calcLayout(yamlData.data, null, null);
+
+    console.log(diagramObj);
+    console.log("========================");
 
     //Отрисовка
-    Box.drawBox(object, null, 0, 0, canvasLayer);
+    Box.draw(diagramObj, null, 0, 0, canvasLayer);
 
     //Вычисление координат
-    const relations = Relation.calcPathes(yamlData.relations, object, canvasLayer);
+    const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, canvasLayer);
 
     drawLineNet(canvasLayer);
 });
 
 
 function drawLineNet(canvasLayer) {
+    const color = '#1c4d9c';
+
     for (let i=0; i<300; i += 10) {
         const line = new Konva.Line({
             points: [0, i, 300, i],
-            stroke: 'red',
+            stroke: color,
             strokeWidth: 1,
             lineCap: 'round',
             lineJoin: 'round',
@@ -51,7 +56,7 @@ function drawLineNet(canvasLayer) {
     for (let i=0; i<300; i += 10) {
         const line = new Konva.Line({
             points: [i, 0, i, 300],
-            stroke: 'red',
+            stroke: color,
             strokeWidth: 1,
             lineCap: 'round',
             lineJoin: 'round',

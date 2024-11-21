@@ -32,12 +32,19 @@ export function getAbsoluteStartPoint(object, objectMap) {
 * */
 function initObject(obj, lastObj, parent) {
     //Начальная координата для вставки объекта
-    let startObjX = defaultMarginX;
-    let startObjY = defaultMarginY;
-    //Если это самый верхний объект
-    if (Func.isNull(parent)) {
-        startObjX = 0;
-        startObjY = 0;
+    let startObjX = 0;
+    let startObjY = 0;
+
+    //Абсолютные координаты родителя
+    let parentAbsoluteX = 0;
+    let parentAbsoluteY = 0;
+
+    //Если это не самый верхний объект
+    if (Func.notNull(parent)) {
+        startObjX = defaultMarginX;
+        startObjY = defaultMarginY;
+        parentAbsoluteX = parent.absoluteX;
+        parentAbsoluteY = parent.absoluteY;
     }
 
     //Если какой-то объект (от того же родителя) уже стоит
@@ -54,15 +61,16 @@ function initObject(obj, lastObj, parent) {
         }
     }
 
-
     //Начальные размеры объекта
     if (Func.isNull(obj.x)) {
         //Обновляем X для объекта
         obj.x = startObjX;
+        obj.absoluteX = parentAbsoluteX + startObjX;
     }
     if (Func.isNull(obj.y)) {
         //Обновляем Y для объекта
         obj.y = startObjY;
+        obj.absoluteY = parentAbsoluteY + startObjY;
     }
     if (Func.isNull(obj.width)) {
         obj.width = defaultBoxWidth;
@@ -78,7 +86,6 @@ function initObject(obj, lastObj, parent) {
 /*
 * Расчет координат для каждого объекта.
 * Координаты расстановки объектов - относительные
-* startX, startY - начальные координаты расчета установки относительно родителя
 * */
 export function calcLayout(object, lastObj, parent) {
     object = initObject(object, lastObj, parent);
@@ -123,7 +130,7 @@ export function calcLayout(object, lastObj, parent) {
 * dx, dy - отступ с учетом относительных координат
 * canvasLayer - canvas для рисования
 * */
-export function drawBox(object, parent, dx, dy, canvasLayer) {
+export function draw(object, parent, dx, dy, canvasLayer) {
     if (Func.notNull(parent)) {
         dx += parent.x;
         dy += parent.y;
@@ -159,7 +166,7 @@ export function drawBox(object, parent, dx, dy, canvasLayer) {
         for (let key of innerObjects.keys()) {
             const innerObj = innerObjects.get(key);
 
-            drawBox(innerObj, object, dx, dy, canvasLayer);
+            draw(innerObj, object, dx, dy, canvasLayer);
         }
     }
 }
@@ -178,7 +185,7 @@ export function dataObjectToMap(object, parent) {
         //смотрим все внутренние объекты
         for (let objKey of object.objects.keys()) {
             let innerObj = object.objects.get(objKey);
-            //Если у просматриваемого объета есть у объекта внутренние
+            //Если у просматриваемого объекта есть у объекта внутренние
             if (Func.notNull(innerObj.objects)) {
                 const subMap = dataObjectToMap(innerObj, objKey);
                 //Добавляем объекты в основную map
