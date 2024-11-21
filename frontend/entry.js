@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     console.log("========================");
 
     //Отрисовка
-    Box.draw(diagramObj, null, 0, 0, canvasLayer);
+    Box.draw(diagramObj, canvasLayer);
 
     //Вычисление координат
     const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, canvasLayer);

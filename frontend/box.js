@@ -130,15 +130,10 @@ export function calcLayout(object, lastObj, parent) {
 * dx, dy - отступ с учетом относительных координат
 * canvasLayer - canvas для рисования
 * */
-export function draw(object, parent, dx, dy, canvasLayer) {
-    if (Func.notNull(parent)) {
-        dx += parent.x;
-        dy += parent.y;
-    }
-
+export function draw(object, canvasLayer) {
     const rect = new Konva.Rect({
-        x: object.x + dx,
-        y: object.y + dy,
+        x: object.absoluteX,
+        y: object.absoluteY,
         width: object.width,
         height: object.height,
         fill: object.color,
@@ -149,8 +144,8 @@ export function draw(object, parent, dx, dy, canvasLayer) {
     canvasLayer.add(rect);
 
     const text = new Konva.Text({
-        x: object.x + dx,
-        y: object.y + dy,
+        x: object.absoluteX,
+        y: object.absoluteY,
         width: object.width,
         height: object.height,
         text: object.name,
@@ -160,13 +155,13 @@ export function draw(object, parent, dx, dy, canvasLayer) {
     });
     canvasLayer.add(text);
 
-    //Перебираем все объекты
+    //Перебираем все внутренние объекты и рекурсивно рисуем их
     const innerObjects = object.objects;
     if (innerObjects != null) {
         for (let key of innerObjects.keys()) {
             const innerObj = innerObjects.get(key);
 
-            draw(innerObj, object, dx, dy, canvasLayer);
+            draw(innerObj, canvasLayer);
         }
     }
 }
