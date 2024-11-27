@@ -3,8 +3,8 @@ import Konva from "konva";
 
 const defaultBoxWidth = 100;
 const defaultBoxHeight = 60;
-const defaultMarginX = 10;
-const defaultMarginY = 10;
+const defaultMarginX = 20;
+const defaultMarginY = 20;
 
 
 /*
