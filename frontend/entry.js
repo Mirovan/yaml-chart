@@ -26,8 +26,8 @@ document.addEventListener('DOMContentLoaded', function () {
     //Вычисление координат
     const diagramObj = Box.calcLayout(yamlData.data, null, null);
 
-    console.log(diagramObj);
-    console.log("========================");
+    // console.log(diagramObj);
+    // console.log("========================");
 
     //Отрисовка
     Box.draw(diagramObj, canvasLayer);

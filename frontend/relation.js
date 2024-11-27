@@ -2,6 +2,7 @@ import * as Func from "./functions.js";
 import * as Box from "./box.js";
 import {ResearchPoint} from "./research-point.js";
 import FlatQueue from 'flatqueue';
+import Konva from "konva";
 
 //Размер первого сегмента линии от объекта
 const marginFirst = 5;
@@ -26,8 +27,8 @@ export function calcAllPathes(relationObject, object, canvasLayer) {
         const fromObj = objectMap.get(rel.from);
         const toObj = objectMap.get(rel.to);
 
-        //Точки для рисования линии
-        let relExtremePoints = getRelationPoints(fromObj, toObj, objectMap);
+        //Крайние точки для рисования линии (начальная и конечная)
+        let relExtremePoints = getExtremePoints(fromObj, toObj, objectMap);
 
         //Линия, состоящая из точек от одного объекта до другого
         let pathPoint = calcPath(relExtremePoints, objectMap, canvasLayer);
@@ -60,7 +61,7 @@ export function calcAllPathes(relationObject, object, canvasLayer) {
 /*
 * Определение координаты первой точки соединительной линии
 * */
-function getRelationPoints(fromObj, toObj, objectMap) {
+function getExtremePoints(fromObj, toObj, objectMap) {
     //Координаты (точек верхнего угла) объектов которые надо соединить
     const absolutePointFromObj = Box.getAbsoluteStartPoint(fromObj, objectMap);
     const absolutePointToObj = Box.getAbsoluteStartPoint(toObj, objectMap);
@@ -108,11 +109,12 @@ function getRelationPoints(fromObj, toObj, objectMap) {
 * Расчет точек для соединительной линии
 * Используется алгоритм А* и манхеттеновские расстояния
 *
-* relExtremePoints - содержит начальную и конечную точку для соединения
+* extremePoints - содержит начальную и конечную точку для соединения
 * objectMap - плоская Map с объектами
 * */
-function calcPath(relExtremePoints, objectMap, canvasLayer) {
-    const startPoint = new ResearchPoint(relExtremePoints.startX, relExtremePoints.startY, 1);
+function calcPath(extremePoints, objectMap, canvasLayer) {
+    const startPoint = new ResearchPoint(extremePoints.startX, extremePoints.startY, 1);
+    console.log("startPoint: ", startPoint.x, startPoint.y);
 
     //множество частных решений
     const open = new FlatQueue();
@@ -126,38 +128,61 @@ function calcPath(relExtremePoints, objectMap, canvasLayer) {
 
     //Мапа с объектами которых нельзя пересекать линиями
     const cleanedObjectMap = getCleanedObjectMap(objectMap);
-    console.log(objectMap);
-    console.log(cleanedObjectMap);
-    console.log("----------------");
+    // console.log(objectMap);
+    // console.log(cleanedObjectMap);
+    // console.log("----------------");
 
 
     let temp = 0;
+    //Пока очередь не пустая
     while (open.length > 0) {
-        temp++;
-        if (temp > 10) break;
-
+        //Достам точку из очереди, помечаем как посещенную
         const point = open.pop();
-        closed.add(point);
+        const pointHashCode = point.x + "," + point.y;
 
-        // console.log(point);
-        let circle = new Konva.Circle({
-            x: point.x,
-            y: point.y,
-            radius: 3,
-            fill: '#ff0d00',
-            stroke: '#8a2924',
-            strokeWidth: 1,
-        });
-        canvasLayer.add(circle);
+        //Если еще эту точку не посещали, и значит не просматривали смежные с ней
+        if (!closed.has(pointHashCode)) {
+            closed.add(pointHashCode);
 
-        //вверх
-        tryStep(new ResearchPoint(point.x, point.y - defaultStepY, point.level + 1), open, closed, cleanedObjectMap);
-        //вправо
-        tryStep(new ResearchPoint(point.x + defaultStepX, point.y, point.level + 1), open, closed, cleanedObjectMap);
-        //вниз
-        tryStep(new ResearchPoint(point.x, point.y + defaultStepY, point.level + 1), open, closed, cleanedObjectMap);
-        //влево
-        tryStep(new ResearchPoint(point.x - defaultStepX, point.y, point.level + 1), open, closed, cleanedObjectMap);
+            //Если пришли к финальной точке
+            //ToDo: определить что дошли
+
+            console.log(point.level, ": ", point.x, point.y);
+
+            temp++;
+            if (temp > 70) break;
+
+            let circle = new Konva.Circle({
+                x: point.x,
+                y: point.y,
+                radius: 3,
+                fill: '#ff0d00',
+                stroke: '#8a2924',
+                strokeWidth: 1,
+            });
+            canvasLayer.add(circle);
+
+            //вверх
+            let stepPoint = new ResearchPoint(point.x, point.y - defaultStepY, point.level + 1);
+            if (tryStep(stepPoint, closed, cleanedObjectMap)) {
+                open.push(stepPoint, stepPoint.level + 1);
+            }
+            //вправо
+            stepPoint = new ResearchPoint(point.x + defaultStepX, point.y, point.level + 1);
+            if (tryStep(stepPoint, closed, cleanedObjectMap)) {
+                open.push(stepPoint, stepPoint.level + 1);
+            }
+            //вниз
+            stepPoint = new ResearchPoint(point.x, point.y + defaultStepY, point.level + 1);
+            if (tryStep(stepPoint, closed, cleanedObjectMap)) {
+                open.push(stepPoint, stepPoint.level + 1);
+            }
+            //влево
+            stepPoint = new ResearchPoint(point.x - defaultStepX, point.y, point.level + 1);
+            if (tryStep(stepPoint, closed, cleanedObjectMap)) {
+                open.push(stepPoint, stepPoint.level + 1);
+            }
+        }
     }
 
     return result;
@@ -178,18 +203,24 @@ function getCleanedObjectMap(objectMap) {
 
 /*
 * Попытка пойти в точку с координатами x,y
+* point - точка в которую пытаемся пойти
+* close - коллекция всех посещенных точек
+* objectMap - коллекция объектов через которые нельзя рисовать линию
 * */
-function tryStep(point, open, closed, objectMap) {
-    //Условно можем идти только по положительны координатам
-    if (point.x >= 0 && point.y >= 0) {
-        //Проверяем что эту точку мы еще не посещали
-        if (!closed.has(point)) {
+function tryStep(point, closed, objectMap) {
+    const pointHashCode = point.x + "," + point.y;
+
+    //Проверяем что эту точку мы еще не посещали
+    if (!closed.has(pointHashCode)) {
+        //Условно можем идти только по положительны координатам
+        if (point.x >= 0 && point.y >= 0) {
             //Если точка доступна(не принадлежит объекту) - добавляем в очередь
             if (isPointAvailable(point, objectMap)) {
-                open.push(point, point.level + 1);
+                return true;
             }
         }
     }
+    return false;
 }
 
 
@@ -197,17 +228,10 @@ function tryStep(point, open, closed, objectMap) {
 * Определение доступна ли точка, т.е. через неё можно нарисовать линию
 * */
 function isPointAvailable(point, objectMap) {
-    console.log("-----------------");
-
-    console.log(point);
-
-    //ToDo: использовать для objectMap абсолютные значения
-
     //Проверяем что точка не лежит ни в одном объекте
     for (const objItem of objectMap.values()) {
-        console.log(objItem);
-        if (objItem.x < point.x && point.x < objItem.x + objItem.width
-            && objItem.y < point.y && point.y < objItem.y + objItem.height) {
+        if (objItem.absoluteX <= point.x && point.x <= objItem.absoluteX + objItem.width
+            && objItem.absoluteY <= point.y && point.y <= objItem.absoluteY + objItem.height) {
             return false;
         }
     }
