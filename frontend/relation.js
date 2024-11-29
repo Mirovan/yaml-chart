@@ -149,10 +149,6 @@ function calcPath(extremePoints, objectMap, canvasLayer) {
 
     //Мапа с объектами которых нельзя пересекать линиями
     const cleanedObjectMap = getCleanedObjectMap(objectMap);
-    // console.log(objectMap);
-    // console.log(cleanedObjectMap);
-    // console.log("----------------");
-
 
     let temp = 0;
     //Пока очередь не пустая
@@ -170,19 +166,19 @@ function calcPath(extremePoints, objectMap, canvasLayer) {
                 const path = buildPathByPoint(nodePoint);
 
                 //Результат, включая стартовую точку
-                return [startNodePoint.point, ...path];
+                return compressPoints([startNodePoint.point, ...path]);
             }
 
 
-            let circle = new Konva.Circle({
-                x: nodePoint.point.x,
-                y: nodePoint.point.y,
-                radius: 3,
-                fill: '#62a0ce',
-                stroke: '#458ba9',
-                strokeWidth: 1,
-            });
-            canvasLayer.add(circle);
+            // let circle = new Konva.Circle({
+            //     x: nodePoint.point.x,
+            //     y: nodePoint.point.y,
+            //     radius: 3,
+            //     fill: '#62a0ce',
+            //     stroke: '#458ba9',
+            //     strokeWidth: 1,
+            // });
+            // canvasLayer.add(circle);
 
 
             //Защита от зацикливания
@@ -249,7 +245,6 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
             //Смотрим на предка и если мы отдаляемся от конечной точки - то эту точку не рассматриваем
             const parentWayCost = Math.abs(endPoint.x - nodePoint.parent.parent.parent.point.x) + Math.abs(endPoint.y - nodePoint.parent.parent.parent.point.y);
             const pointWayCost = Math.abs(endPoint.x - nodePoint.point.x) + Math.abs(endPoint.y - nodePoint.point.y);
-            console.log("pointWayCost", pointWayCost);
             if (pointWayCost > parentWayCost) return false;
         }
 
@@ -291,5 +286,28 @@ function buildPathByPoint(nodePoint) {
         //ToDo: дописать схлопывание линии в две точки по прямой вместо N точек
         nodePoint = nodePoint.parent;
     }
+    return res;
+}
+
+
+/*
+* Сжатие точек в линию.
+* points - коллекция точек
+* */
+function compressPoints(points) {
+    const res = [];
+
+    res.push(points[0]);
+
+    let edgePoint = points[0];
+    for (let i=1; i<points.length; i++) {
+        if (points[i].x !== edgePoint.x && points[i].y !== edgePoint.y) {
+            res.push(points[i-1]);
+            edgePoint = points[i-1];
+        }
+    }
+
+    res.push(points[points.length-1]);
+
     return res;
 }
