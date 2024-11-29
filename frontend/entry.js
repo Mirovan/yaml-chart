@@ -26,14 +26,27 @@ document.addEventListener('DOMContentLoaded', function () {
     //Вычисление координат
     const diagramObj = Box.calcLayout(yamlData.data, null, null);
 
-    // console.log(diagramObj);
-    // console.log("========================");
-
     //Отрисовка
     Box.draw(diagramObj, canvasLayer);
 
     //Вычисление координат
     const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, canvasLayer);
+    for (let rel of relations) {
+        const points = []
+        for (let p of rel) {
+            points.push(p.x);
+            points.push(p.y);
+        }
+        console.log(points);
+        const line = new Konva.Line({
+            points: points,
+            stroke: "#492f2f",
+            strokeWidth: 3,
+            lineCap: 'round',
+            lineJoin: 'round',
+        });
+        canvasLayer.add(line);
+    }
 
     drawLineNet(canvasLayer);
 });

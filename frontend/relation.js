@@ -10,10 +10,25 @@ const defaultStepX = 10;
 const defaultStepY = 10;
 
 
+export class ObjectRelationRelation {
+    /*
+    * from, to - объекты
+    * entry - тип входа в объект - top|right|bottom|left
+    * */
+    constructor(from, to, entry) {
+        this.from = from;
+        this.to = to;
+        this.entry = entry;
+    }
+}
+
+
 /*
 * Расчет линий
 * */
 export function calcAllPathes(relationObject, object, canvasLayer) {
+    const result = [];
+
     //Список всех объектов в плоской структуре
     const objectMap = Box.dataObjectToMap(object, null);
 
@@ -23,11 +38,11 @@ export function calcAllPathes(relationObject, object, canvasLayer) {
     //Проходим по всем связям объектов
     for (let key of relations.keys()) {
         const rel = relations.get(key);
-        const fromObj = objectMap.get(rel.from);
-        const toObj = objectMap.get(rel.to);
+
+        const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.entry);
 
         //Крайние точки для рисования линии (начальная и конечная)
-        let relExtremePoints = getExtremePoints(fromObj, toObj, objectMap);
+        let relExtremePoints = getExtremePoints(objectRelation, objectMap);
 
 
         //////////////////////////////////////////////////
@@ -56,62 +71,68 @@ export function calcAllPathes(relationObject, object, canvasLayer) {
 
         //Линия, состоящая из точек от одного объекта до другого
         let pathPoints = calcPath(relExtremePoints, objectMap, canvasLayer);
-        for (let p of pathPoints) {
-            let circle = new Konva.Circle({
-                x: p.x,
-                y: p.y,
-                radius: 3,
-                fill: '#ff0d00',
-                stroke: '#8a2924',
-                strokeWidth: 1,
-            });
-            canvasLayer.add(circle);
-        }
+
+        // for (let p of pathPoints) {
+        //     let circle = new Konva.Circle({
+        //         x: p.x,
+        //         y: p.y,
+        //         radius: 3,
+        //         fill: '#ff0d00',
+        //         stroke: '#8a2924',
+        //         strokeWidth: 1,
+        //     });
+        //     canvasLayer.add(circle);
+        // }
+
+        result.push(pathPoints);
     }
 
+    return result;
 }
 
 
 /*
 * Определение координаты первой точки соединительной линии
 * */
-function getExtremePoints(fromObj, toObj, objectMap) {
+function getExtremePoints(relation, objectMap) {
+    console.log(relation);
+
     //Координаты (точек верхнего угла) объектов которые надо соединить
-    const absolutePointFromObj = Box.getAbsoluteStartPoint(fromObj, objectMap);
-    const absolutePointToObj = Box.getAbsoluteStartPoint(toObj, objectMap);
+    const absolutePointFromObj = Box.getAbsoluteStartPoint(relation.from, objectMap);
+    const absolutePointToObj = Box.getAbsoluteStartPoint(relation.to, objectMap);
 
     //Координаты по дефолту
-    let startX = absolutePointFromObj.x + fromObj.width;
-    let startY = absolutePointFromObj.y + fromObj.height / 2;
+    let startX = absolutePointFromObj.x + relation.from.width;
+    let startY = absolutePointFromObj.y + relation.from.height / 2;
     let endX = absolutePointToObj.x;
-    let endY = absolutePointToObj.y + toObj.height / 2;
+    let endY = absolutePointToObj.y + relation.to.height / 2;
 
     //↗️ ➡️ ↘️  fromObj слева, toObj справа
     if (absolutePointFromObj.x < absolutePointToObj.x) {
-        startX = absolutePointFromObj.x + fromObj.width;
-        startY = absolutePointFromObj.y + fromObj.height / 2;
+        startX = absolutePointFromObj.x + relation.from.width;
+        startY = absolutePointFromObj.y + relation.from.height / 2;
         endX = absolutePointToObj.x;
-        endY = absolutePointToObj.y + toObj.height / 2;
+        endY = absolutePointToObj.y + relation.to.height / 2;
     }
     //↙️ ⬅️ ↖️  fromObj справа, toObj слева
     else if (absolutePointToObj.x < absolutePointFromObj.x) {
         startX = absolutePointFromObj.x;
-        startY = absolutePointFromObj.y + fromObj.height / 2;
-        endX = absolutePointToObj.x + toObj.width;
-        endY = absolutePointToObj.y + toObj.height / 2;
+        startY = absolutePointFromObj.y + relation.from.height / 2;
+        endX = absolutePointToObj.x + relation.to.width;
+        endY = absolutePointToObj.y + relation.to.height / 2;
     }
     //⬆️ fromObj снизу, toObj сверху
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y > absolutePointToObj.y) {
-        startX = absolutePointFromObj.x + fromObj.width / 2;
+        startX = absolutePointFromObj.x + relation.from.width / 2;
         startY = absolutePointFromObj.y;
-        endX = absolutePointToObj.x + toObj.width / 2;
-        endY = absolutePointToObj.y + toObj.height;
+        endX = absolutePointToObj.x + relation.to.width / 2;
+        endY = absolutePointToObj.y + relation.to.height;
     }
     //⬇️ fromObj снизу, toObj сверху
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y < absolutePointToObj.y) {
-        startX = absolutePointFromObj.x + fromObj.width / 2;
-        startY = absolutePointFromObj.y + fromObj.height;
-        endX = absolutePointToObj.x + toObj.width / 2;
+        startX = absolutePointFromObj.x + relation.from.width / 2;
+        startY = absolutePointFromObj.y + relation.from.height;
+        endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y;
     }
 
@@ -133,10 +154,6 @@ function calcPath(extremePoints, objectMap, canvasLayer) {
     //Конечная точка
     const endPoint = new Point(extremePoints.endX, extremePoints.endY);
 
-    //Условное расстояние от начальной точки до конечной (плюс некий дополнительный отступ)
-    // const startPointWayCost = Math.abs(endPoint.x - startNodePoint.point.x) + Math.abs(endPoint.y - startNodePoint.point.y) + defaultStepX + defaultStepY;
-    // console.log("startPointWayCost", startPointWayCost);
-
     //множество частных решений
     const open = new FlatQueue();
     open.push(startNodePoint, startNodePoint.level);
@@ -150,7 +167,7 @@ function calcPath(extremePoints, objectMap, canvasLayer) {
     //Мапа с объектами которых нельзя пересекать линиями
     const cleanedObjectMap = getCleanedObjectMap(objectMap);
 
-    let temp = 0;
+    let exitIterator = 0;
     //Пока очередь не пустая
     while (open.length > 0) {
         //Достам точку из очереди, помечаем как посещенную
@@ -163,10 +180,22 @@ function calcPath(extremePoints, objectMap, canvasLayer) {
 
             //Если пришли к финальной точке
             if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
-                const path = buildPathByPoint(nodePoint);
+                const path = [startNodePoint.point, ...buildPathByPoint(nodePoint)];
+
+                // for (let p of path) {
+                //     let circle = new Konva.Circle({
+                //         x: p.x,
+                //         y: p.y,
+                //         radius: 3,
+                //         fill: '#ff0000',
+                //         stroke: '#540303',
+                //         strokeWidth: 1,
+                //     });
+                //     canvasLayer.add(circle);
+                // }
 
                 //Результат, включая стартовую точку
-                return compressPoints([startNodePoint.point, ...path]);
+                return compressPoints(path);
             }
 
 
@@ -182,8 +211,8 @@ function calcPath(extremePoints, objectMap, canvasLayer) {
 
 
             //Защита от зацикливания
-            temp++;
-            if (temp > 10000) break;
+            exitIterator++;
+            if (exitIterator > 10000) break;
 
 
             //вверх
@@ -231,7 +260,6 @@ function getCleanedObjectMap(objectMap) {
 * close - коллекция всех посещенных точек
 * objectMap - коллекция объектов через которые нельзя рисовать линию
 * endPoint - конечная точка куда надо нарисовать линию
-* startPointWayCost - предельное расстояние где может находится предполагаемая точка nodePoint
 * */
 function tryStep(nodePoint, closed, objectMap, endPoint) {
     const pointHashCode = nodePoint.point.x + "," + nodePoint.point.y;
@@ -283,10 +311,9 @@ function buildPathByPoint(nodePoint) {
     let res = [];
     while (nodePoint.parent != null) {
         res.push(nodePoint.point);
-        //ToDo: дописать схлопывание линии в две точки по прямой вместо N точек
         nodePoint = nodePoint.parent;
     }
-    return res;
+    return res.reverse();
 }
 
 
@@ -296,7 +323,6 @@ function buildPathByPoint(nodePoint) {
 * */
 function compressPoints(points) {
     const res = [];
-
     res.push(points[0]);
 
     let edgePoint = points[0];
@@ -306,7 +332,6 @@ function compressPoints(points) {
             edgePoint = points[i-1];
         }
     }
-
     res.push(points[points.length-1]);
 
     return res;
