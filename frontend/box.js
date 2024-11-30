@@ -9,8 +9,10 @@ const defaultMarginY = 20;
 
 /*
 * Расчет абсолютных координат объекта
+* object - объект для которого вычисляем абсолютное положение
+* objectMap - сптсок всех объектов
 * */
-export function getAbsoluteStartPoint(object, objectMap) {
+export function getAbsolutePoint(object, objectMap) {
     let absoluteX = object.x;
     let absoluteY = object.y;
     let parentId = object.parent;

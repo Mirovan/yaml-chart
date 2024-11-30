@@ -61,10 +61,12 @@ relations:
   service1-ingress2:
     from: service1
     to: ingress2
-    entry: top
-#  deployment1-service2:
-#    from: deployment1
-#    to: service2
+    posFrom: top
+    posTo: left
+  deployment1-service2:
+    from: deployment1
+    to: service2
+    posFrom: bottom
 
 
 </textarea>

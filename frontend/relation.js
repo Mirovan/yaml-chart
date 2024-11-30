@@ -10,15 +10,16 @@ const defaultStepX = 10;
 const defaultStepY = 10;
 
 
-export class ObjectRelationRelation {
+export class ObjectRelation {
     /*
     * from, to - объекты
     * entry - тип входа в объект - top|right|bottom|left
     * */
-    constructor(from, to, entry) {
+    constructor(from, to, posFrom, posTo) {
         this.from = from;
         this.to = to;
-        this.entry = entry;
+        this.posFrom = posFrom;
+        this.posTo = posTo;
     }
 }
 
@@ -39,7 +40,7 @@ export function calcAllPathes(relationObject, object, canvasLayer) {
     for (let key of relations.keys()) {
         const rel = relations.get(key);
 
-        const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.entry);
+        const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.posFrom, rel.posTo);
 
         //Крайние точки для рисования линии (начальная и конечная)
         let relExtremePoints = getExtremePoints(objectRelation, objectMap);
@@ -95,11 +96,9 @@ export function calcAllPathes(relationObject, object, canvasLayer) {
 * Определение координаты первой точки соединительной линии
 * */
 function getExtremePoints(relation, objectMap) {
-    console.log(relation);
-
     //Координаты (точек верхнего угла) объектов которые надо соединить
-    const absolutePointFromObj = Box.getAbsoluteStartPoint(relation.from, objectMap);
-    const absolutePointToObj = Box.getAbsoluteStartPoint(relation.to, objectMap);
+    const absolutePointFromObj = Box.getAbsolutePoint(relation.from, objectMap);
+    const absolutePointToObj = Box.getAbsolutePoint(relation.to, objectMap);
 
     //Координаты по дефолту
     let startX = absolutePointFromObj.x + relation.from.width;
@@ -107,34 +106,75 @@ function getExtremePoints(relation, objectMap) {
     let endX = absolutePointToObj.x;
     let endY = absolutePointToObj.y + relation.to.height / 2;
 
-    //↗️ ➡️ ↘️  fromObj слева, toObj справа
+    //Вычисляем расположение точек по дефолту (если не указано откуда и куда)
+
+    //↗️ ➡️ ↘️  fromObj стоит слева, toObj стоит справа
     if (absolutePointFromObj.x < absolutePointToObj.x) {
         startX = absolutePointFromObj.x + relation.from.width;
         startY = absolutePointFromObj.y + relation.from.height / 2;
         endX = absolutePointToObj.x;
         endY = absolutePointToObj.y + relation.to.height / 2;
     }
-    //↙️ ⬅️ ↖️  fromObj справа, toObj слева
+    //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
     else if (absolutePointToObj.x < absolutePointFromObj.x) {
         startX = absolutePointFromObj.x;
         startY = absolutePointFromObj.y + relation.from.height / 2;
         endX = absolutePointToObj.x + relation.to.width;
         endY = absolutePointToObj.y + relation.to.height / 2;
     }
-    //⬆️ fromObj снизу, toObj сверху
+    //⬆️ fromObj стоит снизу, toObj стоит сверху
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y > absolutePointToObj.y) {
         startX = absolutePointFromObj.x + relation.from.width / 2;
         startY = absolutePointFromObj.y;
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y + relation.to.height;
     }
-    //⬇️ fromObj снизу, toObj сверху
+    //⬇️ fromObj стоит сверху, toObj стоит снизу
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y < absolutePointToObj.y) {
         startX = absolutePointFromObj.x + relation.from.width / 2;
         startY = absolutePointFromObj.y + relation.from.height;
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y;
     }
+
+    console.log(relation);
+
+    //Если указано положение точки начального from объекта
+    if (relation.posFrom === "top") {
+        startX = absolutePointFromObj.x + relation.from.width / 2;
+        startY = absolutePointFromObj.y;
+    }
+    if (relation.posFrom === "right") {
+        startX = absolutePointFromObj.x + relation.from.width;
+        startY = absolutePointFromObj.y + relation.from.height / 2;
+    }
+    if (relation.posFrom === "bottom") {
+        startX = absolutePointFromObj.x + relation.from.width / 2;
+        startY = absolutePointFromObj.y + relation.from.height;
+    }
+    if (relation.posFrom === "left") {
+        startX = absolutePointFromObj.x;
+        startY = absolutePointFromObj.y + relation.from.height / 2;
+    }
+
+    //Если указано положение точки конечного to объекта
+    if (relation.posTo === "top") {
+        endX = absolutePointToObj.x + relation.to.width / 2;
+        endY = absolutePointToObj.y;
+    }
+    if (relation.posTo === "right") {
+        endX = absolutePointToObj.x + relation.to.width;
+        endY = absolutePointToObj.y + relation.to.height / 2;
+    }
+    if (relation.posTo === "bottom") {
+        endX = absolutePointToObj.x + relation.to.width / 2;
+        endY = absolutePointToObj.y + relation.to.height;
+    }
+    if (relation.posTo === "left") {
+        endX = absolutePointToObj.x;
+        endY = absolutePointToObj.y + relation.to.height / 2;
+    }
+
 
     return {startX: startX, startY: startY, endX: endX, endY: endY};
 }

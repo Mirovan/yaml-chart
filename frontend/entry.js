@@ -37,7 +37,7 @@ document.addEventListener('DOMContentLoaded', function () {
             points.push(p.x);
             points.push(p.y);
         }
-        console.log(points);
+
         const line = new Konva.Line({
             points: points,
             stroke: "#492f2f",
