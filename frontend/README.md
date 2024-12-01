@@ -9,7 +9,7 @@ npm i --save-dev autoprefixer css-loader postcss-loader sass sass-loader style-l
 npm i bootstrap
 npm i yaml
 npm i konva
-npm i flatqueue
+npm i heap-js
 npm run build
 ```
 

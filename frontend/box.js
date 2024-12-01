@@ -141,7 +141,8 @@ export function draw(object, canvasLayer) {
         fill: object.color,
         stroke: 'black',
         strokeWidth: 2,
-        draggable: false
+        draggable: false,
+        opacity: 0.5,
     });
     canvasLayer.add(rect);
 

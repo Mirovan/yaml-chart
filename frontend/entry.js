@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function () {
     Box.draw(diagramObj, canvasLayer);
 
     //Вычисление координат
-    const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, canvasLayer);
+    const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, stage, canvasLayer);
     for (let rel of relations) {
         const points = []
         for (let p of rel) {
@@ -62,6 +62,7 @@ function drawLineNet(canvasLayer) {
             strokeWidth: 1,
             lineCap: 'round',
             lineJoin: 'round',
+            opacity: 0.5,
         });
         canvasLayer.add(line);
     }
@@ -73,6 +74,7 @@ function drawLineNet(canvasLayer) {
             strokeWidth: 1,
             lineCap: 'round',
             lineJoin: 'round',
+            opacity: 0.5,
         });
         canvasLayer.add(line);
     }
