@@ -1,54 +1,73 @@
 data:
   color: "#ededed"
-  layout: inline
+  layout: column
   objects:
-    container2:
+    group1:
       color: "#cfcfcf"
-      type: container
-      layout: column
-      name: container2
-      objects:
-        ingress1:
-          color: "#eeeeee"
-          type: box
-          name: ingress1
-        service1:
-          color: "#eeeeee"
-          type: box
-          name: service1
-        deployment1:
-          color: "#eeeeee"
-          type: box
-          name: deployment1
-
-    container3:
-      color: "#cfcfcf"
-      type: container
+      type: group
       layout: inline
-      name: container3
+      name: group1
       objects:
-        ingress2:
+        aaa:
           color: "#eeeeee"
           type: box
-          name: ingress2
-        service2:
+          name: aaa
+        bbb:
           color: "#eeeeee"
           type: box
-          name: service2
-        deployment2:
+          name: bbb
+        ccc:
           color: "#eeeeee"
           type: box
-          name: deployment2
+          name: ccc
+    group2:
+      color: "#cfcfcf"
+      type: group
+      layout: inline
+      name: group2
+      objects:
+        ddd:
+          color: "#eeeeee"
+          type: box
+          name: ddd
+        eee:
+          color: "#eeeeee"
+          type: box
+          name: eee
+        fff:
+          color: "#eeeeee"
+          type: box
+          name: fff
+    group3:
+      color: "#cfcfcf"
+      type: group
+      layout: inline
+      name: group3
+      objects:
+        ggg:
+          color: "#eeeeee"
+          type: box
+          name: ggg
+        hhh:
+          color: "#eeeeee"
+          type: box
+          name: hhh
+        iii:
+          color: "#eeeeee"
+          type: box
+          name: iii
 
 
 relations:
-  service1-ingress2:
-    from: service1
-    to: ingress2
-    posFrom: right
-    posTo: left
-  deployment1-service2:
-    from: deployment1
-    to: ingress2
-    posFrom: right
-    posTo: left
+  eee-aaa:
+    from: eee
+    to: aaa
+  eee-ccc:
+    from: eee
+    to: ccc
+  eee-ggg:
+    from: eee
+    to: ggg
+  eee-iii:
+    from: eee
+    to: iii

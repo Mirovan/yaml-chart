@@ -1,5 +1,6 @@
+#три объекта без группировки
 data:
-  layout: column
+  layout: inline
   objects:
     ingress1:
       type: box
@@ -14,4 +15,7 @@ data:
 relations:
   ingress1-service1:
     from: ingress1
+    to: service1
+  deployment1-service1:
+    from: deployment1
     to: service1

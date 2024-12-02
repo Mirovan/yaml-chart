@@ -1,8 +1,8 @@
 data:
   layout: column
   objects:
-    container1:
-      type: container
+    group1:
+      type: group
       layout: inline
       objects:
         ingress1:
@@ -13,22 +13,25 @@ data:
           name: service1
         deployment1:
           type: box
-          name: depl1
-    container2:
-      type: container
+          name: deployment1
+    group2:
+      type: group
       layout: inline
       objects:
-        ingress1:
+        ingress2:
           type: box
-          name: ingress1
-        service1:
+          name: ingress2
+        service2:
           type: box
-          name: service1
-        deployment1:
+          name: service2
+        deployment2:
           type: box
-          name: depl1
+          name: deployment2
 
 relations:
-  ingress1-service1:
+  ingress1-service2:
     from: ingress1
-    to: service1
+    to: service2
+  service2-deployment1:
+    from: service2
+    to: deployment1

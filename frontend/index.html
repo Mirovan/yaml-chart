@@ -9,68 +9,18 @@
 
 <!--<input id="goBtn" type="button" />-->
 
-<div class="container">
+<div class="group">
     <div class="row">
         <div id="left-panel" class="col-1">
             <textarea id="yaml-text">
 
-data:
-  color: "#ededed"
-  layout: inline
-  objects:
-    container2:
-      color: "#cfcfcf"
-      type: container
-      layout: column
-      name: container2
-      objects:
-        ingress1:
-          color: "#eeeeee"
-          type: box
-          name: ingress1
-        service1:
-          color: "#eeeeee"
-          type: box
-          name: service1
-        deployment1:
-          color: "#eeeeee"
-          type: box
-          name: deployment1
-
-    container3:
-      color: "#cfcfcf"
-      type: container
-      layout: column
-      name: container3
-      objects:
-        ingress2:
-          color: "#eeeeee"
-          type: box
-          name: ingress2
-        service2:
-          color: "#eeeeee"
-          type: box
-          name: service2
-        deployment2:
-          color: "#eeeeee"
-          type: box
-          name: deployment2
 
 
-relations:
-  service1-ingress2:
-    from: service1
-    to: ingress2
-    posFrom: right
-    posTo: left
-
-
-
-</textarea>
+            </textarea>
         </div>
     </div>
     <div class="row">
-        <div id="watman-container" class="col p-2">
+        <div id="watman-group" class="col p-2">
             <div id="watman" class="col"></div>
         </div>
     </div>

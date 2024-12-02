@@ -38,10 +38,12 @@ document.addEventListener('DOMContentLoaded', function () {
             points.push(p.y);
         }
 
-        const line = new Konva.Line({
+        const line = new Konva.Arrow({
             points: points,
             stroke: "#492f2f",
-            strokeWidth: 3,
+            strokeWidth: 2,
+            pointerWidth: 6,
+            pointerLength: 6,
             lineCap: 'round',
             lineJoin: 'round',
         });

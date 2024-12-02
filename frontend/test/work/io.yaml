@@ -1,0 +1,33 @@
+#deployment [io] Инфраструктурные облигации
+data:
+  color: "#ededed"
+  layout: column
+  objects:
+    dom-internal:
+      color: "#cfcfcf"
+      type: group
+      layout: inline
+      name: ДОМ.РФ internal
+      objects:
+        net-internal:
+          name: EISGS <env> Internal
+          objects:
+            k8s:
+              name: k8s-<env>
+              objects:
+                aaa:
+                  color: "#eeeeee"
+                  type: box
+                  name: aaa
+                bbb:
+                  color: "#eeeeee"
+                  type: box
+                  name: bbb
+                ccc:
+                  color: "#eeeeee"
+                  type: box
+                  name: ccc
+
+
+
+relations:
