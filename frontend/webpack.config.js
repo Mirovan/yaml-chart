@@ -1,11 +1,14 @@
 const path = require('path');
 const autoprefixer = require('autoprefixer');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+
 
 module.exports = {
     target: "web",
     entry: {
         entry: './entry.js',
     },
+    stats: 'errors-only',
     output: {
         filename: 'main.js',
         path: path.resolve(__dirname, './dist')
@@ -38,8 +41,13 @@ module.exports = {
             }
         ]
     },
+    plugins: [new HtmlWebpackPlugin({
+        filename: 'index.html',
+        template: './index.html',
+    })],
     devServer: {
         static: [
+            path.join(__dirname, 'test'),
             path.join(__dirname, 'dist'),
             path.join(__dirname, 'images'),
         ],
@@ -51,7 +59,7 @@ module.exports = {
             },
         },
         compress: true,
-        port: 9000,
+        port: 3000,
     },
     optimization: {
         minimize: false,

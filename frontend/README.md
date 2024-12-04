@@ -6,6 +6,7 @@ npm install -D webpack-dev-server
 npm i html-webpack-plugin
 npm i --save bootstrap @popperjs/core
 npm i --save-dev autoprefixer css-loader postcss-loader sass sass-loader style-loader
+npm install --save-dev html-webpack-plugin
 npm i bootstrap
 npm i yaml
 npm i konva

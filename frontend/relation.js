@@ -33,62 +33,64 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
     //Список всех объектов в плоской структуре
     const objectMap = Box.dataObjectToMap(object, null);
 
-    //Map связей
-    let relations = new Map(Object.entries(relationObject));
+    if (Func.notNull(relationObject)) {
+        //Map связей
+        let relations = new Map(Object.entries(relationObject));
 
-    //Проходим по всем связям объектов
-    for (let key of relations.keys()) {
-        const rel = relations.get(key);
+        //Проходим по всем связям объектов
+        for (let key of relations.keys()) {
+            const rel = relations.get(key);
 
-        const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.posFrom, rel.posTo);
+            const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.posFrom, rel.posTo);
 
-        //Крайние точки для рисования линии (начальная и конечная)
-        let relExtremePoints = getExtremePoints(objectRelation, objectMap);
-
-
-        //////////////////////////////////////////////////
-        //Рисуем для дебага
-        let circle = new Konva.Circle({
-            x: relExtremePoints.startX,
-            y: relExtremePoints.startY,
-            radius: 6,
-            // fill: 'green',
-            stroke: '#068400',
-            strokeWidth: 2,
-        });
-        circle.on('mouseover', function () {
-            console.log('x: ' + relExtremePoints.startX + ', y: ' + relExtremePoints.startY);
-        });
-        canvasLayer.add(circle);
-
-        circle = new Konva.Circle({
-            x: relExtremePoints.endX,
-            y: relExtremePoints.endY,
-            radius: 6,
-            // fill: 'green',
-            stroke: '#068400',
-            strokeWidth: 2,
-        });
-        canvasLayer.add(circle);
-        //////////////////////////////////////////////////
+            //Крайние точки для рисования линии (начальная и конечная)
+            let relExtremePoints = getExtremePoints(objectRelation, objectMap);
 
 
-        //Линия, состоящая из точек от одного объекта до другого
-        let pathPoints = calcPath(relExtremePoints, objectMap, stage, canvasLayer);
+            //////////////////////////////////////////////////
+            //Рисуем для дебага
+            let circle = new Konva.Circle({
+                x: relExtremePoints.startX,
+                y: relExtremePoints.startY,
+                radius: 6,
+                // fill: 'green',
+                stroke: '#068400',
+                strokeWidth: 2,
+            });
+            circle.on('mouseover', function () {
+                console.log('x: ' + relExtremePoints.startX + ', y: ' + relExtremePoints.startY);
+            });
+            canvasLayer.add(circle);
 
-        // for (let p of pathPoints) {
-        //     let circle = new Konva.Circle({
-        //         x: p.x,
-        //         y: p.y,
-        //         radius: 3,
-        //         fill: '#ff0d00',
-        //         stroke: '#8a2924',
-        //         strokeWidth: 1,
-        //     });
-        //     canvasLayer.add(circle);
-        // }
+            circle = new Konva.Circle({
+                x: relExtremePoints.endX,
+                y: relExtremePoints.endY,
+                radius: 6,
+                // fill: 'green',
+                stroke: '#068400',
+                strokeWidth: 2,
+            });
+            canvasLayer.add(circle);
+            //////////////////////////////////////////////////
 
-        result.push(pathPoints);
+
+            //Линия, состоящая из точек от одного объекта до другого
+            let pathPoints = calcPath(relExtremePoints, objectMap, stage, canvasLayer);
+
+            // for (let p of pathPoints) {
+            //     let circle = new Konva.Circle({
+            //         x: p.x,
+            //         y: p.y,
+            //         radius: 3,
+            //         fill: '#ff0d00',
+            //         stroke: '#8a2924',
+            //         strokeWidth: 1,
+            //     });
+            //     canvasLayer.add(circle);
+            // }
+
+            result.push(pathPoints);
+        }
     }
 
     return result;
