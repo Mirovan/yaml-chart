@@ -13,21 +13,51 @@ data:
           name: EISGS <env> Internal
           objects:
             k8s:
+              layout: column
               name: k8s-<env>
               objects:
-                aaa:
-                  color: "#eeeeee"
-                  type: box
-                  name: aaa
-                bbb:
-                  color: "#eeeeee"
-                  type: box
-                  name: bbb
-                ccc:
-                  color: "#eeeeee"
-                  type: box
-                  name: ccc
+                ns-io:
+                  color: "#ffffff"
+                  name: io-<env>
+                  objects:
+                    aaa:
+                      color: "#c9e7b7"
+                      type: box
+                      name: io.apps.k8s.<env>.domoy.ru/(.*)
+                    bbb:
+                      color: "#c9e7b7"
+                      type: box
+                      name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
+                    ccc:
+                      color: "#c9e7b7"
+                      type: box
+                      name: io-frontend-node-app
+                idm-group:
+                  color: "#ffffff"
+                  name: Подсистема ЕИСЖС.IDM
+                  objects:
+                    ns-idm:
+                      name: idm-<env>
+                      objects:
+                        aaa:
+                          color: "#c9e7b7"
+                          type: box
+                          name: io.apps.k8s.<env>.domoy.ru/(.*)
+                        bbb:
+                          color: "#c9e7b7"
+                          type: box
+                          name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
+                        ccc:
+                          color: "#c9e7b7"
+                          type: box
+                          name: io-frontend-node-app
 
 
 
 relations:
+  aaa-bbb:
+    from: aaa
+    to: bbb
+  ссс-bbb:
+    from: ccc
+    to: bbb

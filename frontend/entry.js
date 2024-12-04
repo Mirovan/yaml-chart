@@ -6,58 +6,65 @@ import * as Box from "./box.js";
 import * as Relation from "./relation.js";
 
 /**********************************************************************************/
-
+let stage;
+let canvasLayer;
 
 document.addEventListener('DOMContentLoaded', function () {
+     stage = new Konva.Stage({
+        container: 'watman',
+        width: 800,
+        height: 600,
+    });
+
+    canvasLayer = new Konva.Layer({
+        x: 0,
+        y: 0,
+    });
+    stage.add(canvasLayer);
+
     fetch('http://localhost:3000/work/io.yaml')
         .then(response => response.text())
         .then(response => {
             document.getElementById("yaml-text").innerHTML = response;
+            // const yamlData = YAML.parse(document.getElementById("yaml-text").value);
 
-            const stage = new Konva.Stage({
-                container: 'watman',
-                width: 800,
-                height: 600,
-            });
-
-            const canvasLayer = new Konva.Layer({
-                x: 0,
-                y: 0,
-            });
-            stage.add(canvasLayer);
-
-            const yamlData = YAML.parse(document.getElementById("yaml-text").value);
-
-            //Вычисление координат
-            const diagramObj = Box.calcLayout(yamlData.data, null, null);
-
-            //Отрисовка
-            Box.draw(diagramObj, canvasLayer);
-
-            //Вычисление координат
-            const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, stage, canvasLayer);
-            for (let rel of relations) {
-                const points = []
-                for (let p of rel) {
-                    points.push(p.x);
-                    points.push(p.y);
-                }
-
-                const line = new Konva.Arrow({
-                    points: points,
-                    stroke: "#492f2f",
-                    strokeWidth: 2,
-                    pointerWidth: 6,
-                    pointerLength: 6,
-                    lineCap: 'round',
-                    lineJoin: 'round',
-                });
-                canvasLayer.add(line);
-            }
-
-            drawLineNet(canvasLayer);
+            reloadChart(response);
         });
 });
+
+
+function reloadChart(yaml) {
+    const yamlData = YAML.parse(yaml);
+
+    //Вычисление координат
+    const diagramObj = Box.calcLayout(yamlData.data, null, null);
+
+    //Отрисовка
+    Box.draw(diagramObj, canvasLayer);
+
+    //Вычисление координат
+    const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, stage, canvasLayer);
+    for (let rel of relations) {
+        const points = []
+        for (let p of rel) {
+            points.push(p.x);
+            points.push(p.y);
+        }
+
+        const line = new Konva.Arrow({
+            points: points,
+            stroke: "#492f2f",
+            strokeWidth: 2,
+            pointerWidth: 6,
+            pointerLength: 6,
+            lineCap: 'round',
+            lineJoin: 'round',
+        });
+        canvasLayer.add(line);
+    }
+
+    // drawLineNet(canvasLayer);
+}
 
 
 function drawLineNet(canvasLayer) {

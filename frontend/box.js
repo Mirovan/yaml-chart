@@ -152,7 +152,7 @@ export function draw(object, canvasLayer) {
         width: object.width,
         height: object.height,
         text: object.name,
-        fontSize: 14,
+        fontSize: 12,
         fontFamily: 'Calibri',
         align: 'center',
     });

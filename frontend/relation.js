@@ -49,28 +49,28 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
 
             //////////////////////////////////////////////////
             //Рисуем для дебага
-            let circle = new Konva.Circle({
-                x: relExtremePoints.startX,
-                y: relExtremePoints.startY,
-                radius: 6,
-                // fill: 'green',
-                stroke: '#068400',
-                strokeWidth: 2,
-            });
-            circle.on('mouseover', function () {
-                console.log('x: ' + relExtremePoints.startX + ', y: ' + relExtremePoints.startY);
-            });
-            canvasLayer.add(circle);
-
-            circle = new Konva.Circle({
-                x: relExtremePoints.endX,
-                y: relExtremePoints.endY,
-                radius: 6,
-                // fill: 'green',
-                stroke: '#068400',
-                strokeWidth: 2,
-            });
-            canvasLayer.add(circle);
+            // let circle = new Konva.Circle({
+            //     x: relExtremePoints.startX,
+            //     y: relExtremePoints.startY,
+            //     radius: 6,
+            //     // fill: 'green',
+            //     stroke: '#068400',
+            //     strokeWidth: 2,
+            // });
+            // circle.on('mouseover', function () {
+            //     console.log('x: ' + relExtremePoints.startX + ', y: ' + relExtremePoints.startY);
+            // });
+            // canvasLayer.add(circle);
+            //
+            // circle = new Konva.Circle({
+            //     x: relExtremePoints.endX,
+            //     y: relExtremePoints.endY,
+            //     radius: 6,
+            //     // fill: 'green',
+            //     stroke: '#068400',
+            //     strokeWidth: 2,
+            // });
+            // canvasLayer.add(circle);
             //////////////////////////////////////////////////
 
 
@@ -240,9 +240,9 @@ function calcPath(extremePoints, objectMap, stage, canvasLayer) {
         if (!closed.has(pointHashCode)) {
             closed.add(pointHashCode);
 
-            console.log("---------------");
-            console.log(pointHashCode, " - ", nodePoint.level);
-            console.log(nodePoint);
+            // console.log("---------------");
+            // console.log(pointHashCode, " - ", nodePoint.level);
+            // console.log(nodePoint);
 
             //Если пришли к финальной точке
             if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
