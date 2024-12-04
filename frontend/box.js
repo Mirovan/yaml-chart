@@ -43,8 +43,14 @@ function initObject(obj, lastObj, parent) {
 
     //Если это не самый верхний объект
     if (Func.notNull(parent)) {
-        startObjX = defaultMarginX;
-        startObjY = defaultMarginY;
+        //Определяем - добавлять ли отступ от границы родителя
+        if (parent.border === "none") {
+            startObjX = 0;
+            startObjY = 0;
+        } else {
+            startObjX = defaultMarginX;
+            startObjY = defaultMarginY;
+        }
         parentAbsoluteX = parent.absoluteX;
         parentAbsoluteY = parent.absoluteY;
     }
@@ -116,9 +122,14 @@ export function calcLayout(object, lastObj, parent) {
             heightObjX = Math.max(heightObjX, tempObj.y + tempObj.height);
         }
 
-        //обновляем вторую границу родительского объекта
-        object.width = widthObjX + defaultMarginX;
-        object.height = heightObjX + defaultMarginY;
+        //обновляем вторую границу объекта
+        if (Func.notNull(object.border) && object.border === "none") {
+            object.width = widthObjX;
+            object.height = heightObjX;
+        } else {
+            object.width = widthObjX + defaultMarginX;
+            object.height = heightObjX + defaultMarginY;
+        }
     }
 
     return object;
@@ -133,6 +144,10 @@ export function calcLayout(object, lastObj, parent) {
 * canvasLayer - canvas для рисования
 * */
 export function draw(object, canvasLayer) {
+    let strokeWidth = 2;
+    if (Func.notNull(object.border) && object.border === "none") {
+        strokeWidth = 0;
+    }
     const rect = new Konva.Rect({
         x: object.absoluteX,
         y: object.absoluteY,
@@ -140,7 +155,7 @@ export function draw(object, canvasLayer) {
         height: object.height,
         fill: object.color,
         stroke: 'black',
-        strokeWidth: 2,
+        strokeWidth: strokeWidth,
         draggable: false,
         opacity: 0.5,
     });

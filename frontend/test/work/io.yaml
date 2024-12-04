@@ -37,20 +37,35 @@ data:
                   name: Подсистема ЕИСЖС.IDM
                   objects:
                     ns-idm:
+                      layout: column
                       name: idm-<env>
                       objects:
-                        aaa:
-                          color: "#c9e7b7"
-                          type: box
-                          name: io.apps.k8s.<env>.domoy.ru/(.*)
-                        bbb:
-                          color: "#c9e7b7"
-                          type: box
-                          name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
-                        ccc:
-                          color: "#c9e7b7"
-                          type: box
-                          name: io-frontend-node-app
+                        io-group-frontend:
+                          border: none
+                          objects:
+                            aaa:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io.apps.k8s.<env>.domoy.ru/(.*)
+                            bbb:
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
+                            ccc:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io-frontend-node-app
+                        io-group-gotenberg:
+                          border: none
+                          objects:
+                            ddd:
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-gotenberg-node-app.io-<env>.svc.cluster.local:3300
+                            eee:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io-gotenberg-node-app
 
 
 
@@ -61,3 +76,6 @@ relations:
   ссс-bbb:
     from: ccc
     to: bbb
+  eee-ddd:
+    from: eee
+    to: ddd
