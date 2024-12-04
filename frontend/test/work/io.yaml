@@ -59,6 +59,8 @@ data:
                           border: none
                           objects:
                             ddd:
+                              marginX: 120
+                              marginY: 0
                               color: "#c9e7b7"
                               type: box
                               name: http://io-gotenberg-node-app.io-<env>.svc.cluster.local:3300

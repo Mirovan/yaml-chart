@@ -44,12 +44,15 @@ function initObject(obj, lastObj, parent) {
     //Если это не самый верхний объект
     if (Func.notNull(parent)) {
         //Определяем - добавлять ли отступ от границы родителя
-        if (parent.border === "none") {
-            startObjX = 0;
-            startObjY = 0;
-        } else {
-            startObjX = defaultMarginX;
-            startObjY = defaultMarginY;
+        if (Func.isNull(obj.border)) {
+            startObjX = startObjX + defaultMarginX;
+            startObjY = startObjY + defaultMarginY;
+        }
+        if (Func.notNull(obj.marginX)) {
+            startObjX = startObjX + obj.marginX;
+        }
+        if (Func.notNull(obj.marginY)) {
+            startObjY = startObjY + obj.marginY;
         }
         parentAbsoluteX = parent.absoluteX;
         parentAbsoluteY = parent.absoluteY;
