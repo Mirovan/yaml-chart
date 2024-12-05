@@ -12,8 +12,8 @@ let canvasLayer;
 document.addEventListener('DOMContentLoaded', function () {
      stage = new Konva.Stage({
         container: 'watman',
-        width: 800,
-        height: 600,
+        width: 1000,
+        height: 1000,
     });
 
     canvasLayer = new Konva.Layer({

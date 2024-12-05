@@ -43,41 +43,91 @@ data:
                         io-group-frontend:
                           border: none
                           objects:
-                            aaa:
+                            aaa1:
                               color: "#c9e7b7"
                               type: box
                               name: io.apps.k8s.<env>.domoy.ru/(.*)
-                            bbb:
+                            bbb1:
                               color: "#c9e7b7"
                               type: box
                               name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
-                            ccc:
+                            ccc1:
                               color: "#c9e7b7"
                               type: box
                               name: io-frontend-node-app
                         io-group-gotenberg:
                           border: none
                           objects:
-                            ddd:
+                            bbb2:
                               marginX: 120
                               marginY: 0
                               color: "#c9e7b7"
                               type: box
                               name: http://io-gotenberg-node-app.io-<env>.svc.cluster.local:3300
-                            eee:
+                            ccc2:
                               color: "#c9e7b7"
                               type: box
                               name: io-gotenberg-node-app
+                        io-group-ahd-node-adapter:
+                          border: none
+                          objects:
+                            bbb3:
+                              marginX: 120
+                              marginY: 0
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-ahd-adapter-node-app.io-<env>.svc.cluster.local:3000
+                            ccc3:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io-ahd-adapter-node-app
+                        io-group-backend-node-app:
+                          border: none
+                          objects:
+                            aaa4:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io.apps.k8s.<env>.domoy.ru/([a].*)
+                            bbb4:
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-backend-node-app.io-<env>.svc.cluster.local:4402
+                            ccc4:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io-backend-node-app
+                        io-group-1c-payments:
+                          border: none
+                          objects:
+                            bbb5:
+                              marginX: 120
+                              marginY: 0
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-payments-1c-node-app.io-<env>.svc.cluster.local:8080
+                            ccc5:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io-payments-1c-node-app
+                        io-group-cronjob:
+                          border: none
+                          objects:
+                            cronjob:
+                              marginX: 240
+                              marginY: 0
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-scheduler-cronjob-app.io-<env>.svc.cluster.local:8080
 
 
 
 relations:
-  aaa-bbb:
-    from: aaa
-    to: bbb
-  ссс-bbb:
-    from: ccc
-    to: bbb
-  eee-ddd:
-    from: eee
-    to: ddd
+  aaa1-bbb1:
+    from: aaa1
+    to: bbb1
+  ссс1-bbb1:
+    from: ccc1
+    to: bbb1
+  ccc2-bbb2:
+    from: ccc2
+    to: bbb2
