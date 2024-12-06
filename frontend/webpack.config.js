@@ -6,7 +6,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 module.exports = {
     target: "web",
     entry: {
-        entry: './entry.js',
+        entry: './src/entry.js',
     },
     stats: 'errors-only',
     output: {
@@ -42,6 +42,7 @@ module.exports = {
         ]
     },
     plugins: [new HtmlWebpackPlugin({
+        inject: false,
         filename: 'index.html',
         template: './index.html',
     })],

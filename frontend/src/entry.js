@@ -1,4 +1,4 @@
-import "./css/styles.scss";
+import "../css/styles.scss";
 
 import Konva from 'konva';
 import YAML from 'yaml';
@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     stage.add(canvasLayer);
 
-    fetch('http://localhost:3000/work/io.yaml')
+    // fetch('http://localhost:3000/work/io.yaml')
+    fetch('http://localhost:3000/test5.yaml')
         .then(response => response.text())
         .then(response => {
             document.getElementById("yaml-text").innerHTML = response;
@@ -63,7 +64,7 @@ function reloadChart(yaml) {
         canvasLayer.add(line);
     }
 
-    // drawLineNet(canvasLayer);
+    drawLineNet(canvasLayer);
 }
 
 

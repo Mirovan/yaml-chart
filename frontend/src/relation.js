@@ -2,7 +2,7 @@ import * as Func from "./functions.js";
 import * as Box from "./box.js";
 import {NodePoint} from "./node-point.js";
 import {Point} from "./point.js";
-import { Heap } from 'heap-js';
+import {Heap} from 'heap-js';
 import Konva from "konva";
 
 //Размер шага для поиска пути
@@ -43,10 +43,6 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
 
             const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.posFrom, rel.posTo);
 
-            //Крайние точки для рисования линии (начальная и конечная)
-            let relExtremePoints = getExtremePoints(objectRelation, objectMap);
-
-
             //////////////////////////////////////////////////
             //Рисуем для дебага
             // let circle = new Konva.Circle({
@@ -75,7 +71,7 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
 
 
             //Линия, состоящая из точек от одного объекта до другого
-            let pathPoints = calcPath(relExtremePoints, objectMap, stage, canvasLayer);
+            let pathPoints = calcPath(objectRelation, objectMap, stage, canvasLayer);
 
             // for (let p of pathPoints) {
             //     let circle = new Konva.Circle({
@@ -187,15 +183,28 @@ function getExtremePoints(relation, objectMap) {
 * Расчет точек для соединительной линии
 * Используется алгоритм А* и манхеттеновские расстояния
 *
-* extremePoints - содержит начальную и конечную точку для соединения
+* objectRelation -
 * objectMap - плоская Map с объектами
 * */
-function calcPath(extremePoints, objectMap, stage, canvasLayer) {
+function calcPath(objectRelation, objectMap, stage, canvasLayer) {
+    //Крайние точки для рисования линии (начальная и конечная)
+    let extremePoints = getExtremePoints(objectRelation, objectMap);
+
     //Стартовая точка с координатами x, y. Приоритет в очереди = 1
     const startNodePoint = new NodePoint(new Point(extremePoints.startX, extremePoints.startY), null, 1, 1);
 
     //Конечная точка
     const endPoint = new Point(extremePoints.endX, extremePoints.endY);
+    console.log("endPoint: ", extremePoints.endX, extremePoints.endY);
+    let circle = new Konva.Circle({
+        x: endPoint.x,
+        y: endPoint.y,
+        radius: 4,
+        fill: 'green',
+        stroke: 'black',
+        strokeWidth: 2,
+    });
+    canvasLayer.add(circle);
 
     //множество частных решений
     const open = new Heap(function (a, b) {
@@ -240,9 +249,57 @@ function calcPath(extremePoints, objectMap, stage, canvasLayer) {
         if (!closed.has(pointHashCode)) {
             closed.add(pointHashCode);
 
+
+            let circle = new Konva.Circle({
+                x: nodePoint.point.x,
+                y: nodePoint.point.y,
+                radius: 3,
+                fill: '#62a0ce',
+                stroke: '#458ba9',
+                strokeWidth: 1,
+            });
+            circle.on('mouseover', function () {
+                const mousePos = stage.getPointerPosition();
+                console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.priority);
+            });
+            canvasLayer.add(circle);
+            // const txt = new Konva.Text({
+            //     x: nodePoint.point.x - 3,
+            //     y: nodePoint.point.y - 4,
+            //     text: nodePoint.level,
+            //     fontSize: 10,
+            //     fontFamily: 'Calibri',
+            //     fill: 'red',
+            // });
+            // canvasLayer.add(txt);
+
             // console.log("---------------");
-            // console.log(pointHashCode, " - ", nodePoint.level);
+            // console.log("Point: ", pointHashCode);
             // console.log(nodePoint);
+
+
+            //Если почти пришли к конечной точке, т.е. nodePoint - около финальной точки
+            if (isLatestStepPoint(nodePoint.point, endPoint, objectRelation)) {
+                console.log("======= LATEST =========");
+                console.log("nodePoint.point", nodePoint.point);
+
+                //координаты предпоследней точки
+                let latestX = nodePoint.point.x;
+                let latestY = endPoint.y;
+                console.log("latestX", latestX);
+                console.log("latestY", latestY);
+
+                let circle = new Konva.Circle({
+                    x: latestX,
+                    y: latestY,
+                    radius: 3,
+                    fill: '#ff0000',
+                    stroke: '#540303',
+                    strokeWidth: 1,
+                });
+                canvasLayer.add(circle);
+            }
+
 
             //Если пришли к финальной точке
             if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
@@ -265,33 +322,12 @@ function calcPath(extremePoints, objectMap, stage, canvasLayer) {
             }
 
 
-            // let circle = new Konva.Circle({
-            //     x: nodePoint.point.x,
-            //     y: nodePoint.point.y,
-            //     radius: 3,
-            //     fill: '#62a0ce',
-            //     stroke: '#458ba9',
-            //     strokeWidth: 1,
-            // });
-            // circle.on('mouseover', function () {
-            //     const mousePos = stage.getPointerPosition();
-            //     console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.level);
-            // });
-            // canvasLayer.add(circle);
-            // const txt = new Konva.Text({
-            //     x: nodePoint.point.x - 3,
-            //     y: nodePoint.point.y - 4,
-            //     text: nodePoint.level,
-            //     fontSize: 10,
-            //     fontFamily: 'Calibri',
-            //     fill: 'red',
-            // });
-            // canvasLayer.add(txt);
-
-
             //Защита от зацикливания
             exitIterator++;
-            if (exitIterator > 10000) break;
+            if (exitIterator > 10000) {
+                console.log("EXIT BY ITERATOR !!!");
+                break;
+            }
 
 
             //вверх
@@ -322,6 +358,27 @@ function calcPath(extremePoints, objectMap, stage, canvasLayer) {
 
 
 /*
+* Определение что stepPoint - предпоследняя точка, т.е. следующая - принадлежит конечному объекту
+* */
+function isLatestStepPoint(stepPoint, endPoint, objectRelation) {
+    //Следующая точка куда потенциально можем пойти от текущей
+    let nextPoint = new Point(stepPoint.x + defaultStepX, stepPoint.y);
+
+    //Определяем - находится ли точка stepPoint у границы объекта, т.е. если шагнуть еще в nextPoint - то попадем в сам объект
+    if (isPointInObject(nextPoint, objectRelation.to)) {
+        //определили что stepPoint около границы с конечным объектом
+
+        //Определяем что дальше искать уже не надо и stepPoint - последняя точка перед конечной
+        if (stepPoint.y - defaultStepY <= endPoint.y) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+
+/*
 * Мапа с объектами которых нельзя пересекать соединительными линиями
 * */
 function getCleanedObjectMap(objectMap) {
@@ -334,9 +391,30 @@ function getCleanedObjectMap(objectMap) {
 
 
 /*
+* Определение - принадлежит ли точка объекту
+* */
+function isPointInObject(point, object) {
+    // console.log("point", point);
+    // console.log("object", object);
+    if (object.absoluteX <= point.x && point.x <= object.absoluteX + object.width
+        && object.absoluteY <= point.y && point.y <= object.absoluteY + object.height) {
+
+        // console.log("true");
+        // console.log("object.absoluteX <= point.x", object.absoluteX <= point.x);
+        // console.log("point.x <= object.absoluteX + object.width", point.x <= object.absoluteX + object.width);
+
+        return true;
+    }
+    // console.log("false");
+
+    return false;
+}
+
+
+/*
 * Попытка пойти в точку с координатами x,y
 * nodePoint - точка в которую пытаемся пойти
-* close - коллекция всех посещенных точек
+* closed - коллекция всех посещенных точек
 * objectMap - коллекция объектов через которые нельзя рисовать линию
 * endPoint - конечная точка куда надо нарисовать линию
 * */
@@ -349,7 +427,7 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
     if (!closed.has(pointHashCode)) {
         // console.log("not closed");
 
-        //Отсекаем точки в которые нет смысла идти - они удаляют наш искомый путь
+        //Отсекаем точки в которые нет смысла идти - они отдаляют наш искомый путь
         if (Func.notNull(nodePoint.parent)
             && Func.notNull(nodePoint.parent.parent)
             && Func.notNull(nodePoint.parent.parent.parent)) {
@@ -366,8 +444,9 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
 
         //Условно можем идти только по положительны координатам
         if (nodePoint.point.x >= 0 && nodePoint.point.y >= 0) {
-            //Если точка доступна(не принадлежит объекту через который нельзя рисовать) или это конечная точка - добавляем в очередь
-            if (isPointAvailable(nodePoint, objectMap)
+            //Если точка доступна(не принадлежит объекту через который нельзя рисовать)
+            // или это конечная точка - добавляем в очередь
+            if (isPointAvailable(nodePoint.point, objectMap)
                 || (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y)) {
                 // console.log("TRUE");
 
@@ -383,12 +462,17 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
 
 /*
 * Определение доступна ли точка, т.е. через неё можно нарисовать линию
+* Определяется путем что точка не лежит внутри объекта типа box
 * */
-function isPointAvailable(nodePoint, objectMap) {
+function isPointAvailable(point, objectMap) {
+    // if (nodePoint.point.x == 200 && nodePoint.point.y == 70) {
+    //     console.log("11111111111111111111111111111111");
+    //     console.log(objectMap);
+    // }
     //Проверяем что точка не лежит ни в одном объекте типа box
     for (const objItem of objectMap.values()) {
-        if (objItem.absoluteX <= nodePoint.point.x && nodePoint.point.x <= objItem.absoluteX + objItem.width
-            && objItem.absoluteY <= nodePoint.point.y && nodePoint.point.y <= objItem.absoluteY + objItem.height) {
+        if (objItem.absoluteX <= point.x && point.x <= objItem.absoluteX + objItem.width
+            && objItem.absoluteY <= point.y && point.y <= objItem.absoluteY + objItem.height) {
             // console.log("nodePoint not available", nodePoint);
 
             return false;

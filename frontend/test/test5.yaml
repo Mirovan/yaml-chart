@@ -1,0 +1,20 @@
+
+data:
+  layout: inline
+  objects:
+    group1:
+      objects:
+        aaa1:
+          type: box
+          marginY: 105
+          name: aaa1
+    group2:
+      objects:
+        bbb2:
+          type: box
+          name: bbb2
+
+relations:
+  aaa1-bbb2:
+    from: aaa1
+    to: bbb2
