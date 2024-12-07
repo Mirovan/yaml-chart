@@ -284,20 +284,34 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
                 console.log("nodePoint.point", nodePoint.point);
 
                 //координаты предпоследней точки
-                let latestX = nodePoint.point.x;
-                let latestY = endPoint.y;
-                console.log("latestX", latestX);
-                console.log("latestY", latestY);
+                const latestPoint = new Point(nodePoint.point.x, endPoint.y);
+                // console.log("latestX", latestPoint.x);
+                // console.log("latestY", latestPoint.y);
 
-                let circle = new Konva.Circle({
-                    x: latestX,
-                    y: latestY,
-                    radius: 3,
-                    fill: '#ff0000',
-                    stroke: '#540303',
-                    strokeWidth: 1,
-                });
-                canvasLayer.add(circle);
+                // let circle = new Konva.Circle({
+                //     x: latestPoint.x,
+                //     y: latestPoint.y,
+                //     radius: 3,
+                //     fill: '#ff0000',
+                //     stroke: '#540303',
+                //     strokeWidth: 1,
+                // });
+                // canvasLayer.add(circle);
+
+                const path = [startNodePoint.point, ...buildPathByPoint(nodePoint), latestPoint, endPoint];
+                console.log("path", path.length);
+                for (let p of path) {
+                    let circle = new Konva.Circle({
+                        x: p.x,
+                        y: p.y,
+                        radius: 5,
+                        fill: '#ff0000',
+                        stroke: '#540303',
+                        strokeWidth: 1,
+                    });
+                    canvasLayer.add(circle);
+                }
+                return compressPoints(path);
             }
 
 

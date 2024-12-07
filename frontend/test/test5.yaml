@@ -6,7 +6,7 @@ data:
       objects:
         aaa1:
           type: box
-          marginY: 105
+          marginY: 100
           name: aaa1
     group2:
       objects:
@@ -18,3 +18,4 @@ relations:
   aaa1-bbb2:
     from: aaa1
     to: bbb2
+    posTo: bottom
