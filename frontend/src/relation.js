@@ -215,18 +215,7 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
         }
     });
 
-    // open.push(new NodePoint(new Point(150, 60), null, 2, 1));
-    // open.push(new NodePoint(new Point(160, 70), null, 2, 2));
-    // open.push(new NodePoint(new Point(150, 80), null, 2, 3));
-    // open.push(new NodePoint(new Point(140, 70), null, 2, 4));
-    //
-    // console.log(open.pop());
-    // console.log(open.pop());
-    // console.log(open.pop());
-    // console.log(open.pop());
-    // return;
-
-
+    //Добавляем в очередь первую точку
     open.push(startNodePoint);
 
     //множество уже пройденных вершин
@@ -280,8 +269,7 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 
             //Если почти пришли к конечной точке, т.е. nodePoint - около финальной точки
             if (isLatestStepPoint(nodePoint.point, endPoint, objectRelation)) {
-                console.log("======= LATEST =========");
-                console.log("nodePoint.point", nodePoint.point);
+                console.log("LATEST:", nodePoint.point);
 
                 //координаты предпоследней точки
                 const latestPoint = new Point(nodePoint.point.x, endPoint.y);
@@ -376,15 +364,43 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 * */
 function isLatestStepPoint(stepPoint, endPoint, objectRelation) {
     //Следующая точка куда потенциально можем пойти от текущей
-    let nextPoint = new Point(stepPoint.x + defaultStepX, stepPoint.y);
+    let nextPoint = null;
 
-    //Определяем - находится ли точка stepPoint у границы объекта, т.е. если шагнуть еще в nextPoint - то попадем в сам объект
-    if (isPointInObject(nextPoint, objectRelation.to)) {
-        //определили что stepPoint около границы с конечным объектом
+    if (Func.isNull(objectRelation.posTo) || objectRelation.posTo === "left") {
+        nextPoint = new Point(stepPoint.x + defaultStepX, stepPoint.y);
 
-        //Определяем что дальше искать уже не надо и stepPoint - последняя точка перед конечной
-        if (stepPoint.y - defaultStepY <= endPoint.y) {
-            return true;
+        //Определяем - находится ли точка stepPoint у границы объекта, т.е. если шагнуть еще в nextPoint - то попадем в сам объект
+        if (isPointInObject(nextPoint, objectRelation.to)) {
+            //определили что stepPoint около границы с конечным объектом
+
+            //Определяем что дальше искать уже не надо и stepPoint - последняя точка перед конечной
+            if (stepPoint.y - defaultStepY < endPoint.y) {
+                return true;
+            }
+        }
+    } else if (objectRelation.posTo === "bottom") {
+        nextPoint = new Point(stepPoint.x, stepPoint.y - defaultStepY);
+
+        if (isPointInObject(nextPoint, objectRelation.to)) {
+            if (stepPoint.x + defaultStepX > endPoint.x) {
+                return true;
+            }
+        }
+    } else if (objectRelation.posTo === "right") {
+        nextPoint = new Point(stepPoint.x - defaultStepX, stepPoint.y);
+
+        if (isPointInObject(nextPoint, objectRelation.to)) {
+            if (stepPoint.y - defaultStepY < endPoint.y) {
+                return true;
+            }
+        }
+    } else if (objectRelation.posTo === "top") {
+        nextPoint = new Point(stepPoint.x, stepPoint.y + defaultStepY);
+
+        if (isPointInObject(nextPoint, objectRelation.to)) {
+            if (stepPoint.x + defaultStepX > endPoint.x) {
+                return true;
+            }
         }
     }
 

@@ -6,16 +6,23 @@ data:
       objects:
         aaa1:
           type: box
-          marginY: 100
+          marginY: 115
+#bug          marginX: 5
           name: aaa1
     group2:
+      layout: column
       objects:
         bbb2:
           type: box
           name: bbb2
+        ccc3:
+          type: box
+#bug
+          marginY: 55
+          name: ccc3
 
 relations:
   aaa1-bbb2:
     from: aaa1
     to: bbb2
-    posTo: bottom
+    posTo: top
