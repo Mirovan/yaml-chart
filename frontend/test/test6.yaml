@@ -3,26 +3,97 @@ data:
   layout: inline
   objects:
     group1:
-      objects:
-        aaa1:
-          type: box
-          marginY: 115
-#bug          marginX: 5
-          name: aaa1
-    group2:
       layout: column
       objects:
-        bbb2:
+        aaa:
           type: box
-          name: bbb2
-        ccc3:
+          name: aaa
+        bbb:
           type: box
-#bug
-          marginY: 55
-          name: ccc3
+          marginY: 80
+          name: bbb
+    group2:
+      objects:
+        ccc:
+          type: box
+          marginY: 80
+          name: ccc
+    group3:
+      layout: column
+      objects:
+        ddd:
+          type: box
+          name: ddd
+        eee:
+          type: box
+          marginY: 80
+          name: eee
 
 relations:
-  aaa1-bbb2:
-    from: aaa1
-    to: bbb2
+#  ccc-1:
+#    from: ccc
+#    to: ddd
+#    posTo: left
+#  ccc-2:
+#    from: ccc
+#    to: ddd
+#    posTo: right
+#  ccc-3:
+#    from: ccc
+#    to: ddd
+#    posTo: top
+#  ccc-4:
+#    from: ccc
+#    to: ddd
+#    posTo: bottom
+
+#  ccc-5:
+#    from: ccc
+#    to: eee
+#    posTo: left
+#  ccc-6:
+#    from: ccc
+#    to: eee
+#    posTo: right
+#  ccc-7:
+#    from: ccc
+#    to: eee
+#    posTo: top
+#  ccc-8:
+#    from: ccc
+#    to: eee
+#    posTo: bottom
+
+#  ccc-9:
+#    from: ccc
+#    to: aaa
+#    posTo: left
+#  ccc-10:
+#    from: ccc
+#    to: aaa
+#    posTo: right
+#  ccc-11:
+#    from: ccc
+#    to: aaa
+#    posTo: top
+#  ccc-12:
+#    from: ccc
+#    to: aaa
+#    posTo: bottom
+
+  ccc-13:
+    from: ccc
+    to: bbb
+    posTo: left
+  ccc-14:
+    from: ccc
+    to: bbb
+    posTo: right
+  ccc-15:
+    from: ccc
+    to: bbb
     posTo: top
+  ccc-16:
+    from: ccc
+    to: bbb
+    posTo: bottom

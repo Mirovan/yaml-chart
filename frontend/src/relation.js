@@ -106,6 +106,9 @@ function getExtremePoints(relation, objectMap) {
     let startY = absolutePointFromObj.y + relation.from.height / 2;
     let endX = absolutePointToObj.x;
     let endY = absolutePointToObj.y + relation.to.height / 2;
+    //Откуда и Куда
+    let posFrom = relation.posFrom;
+    let posTo = relation.posTo;
 
     //Вычисляем расположение точек по дефолту (если не указано откуда и куда)
 
@@ -115,6 +118,8 @@ function getExtremePoints(relation, objectMap) {
         startY = absolutePointFromObj.y + relation.from.height / 2;
         endX = absolutePointToObj.x;
         endY = absolutePointToObj.y + relation.to.height / 2;
+        if (Func.isNull(relation.posFrom)) posFrom = "right";
+        if (Func.isNull(relation.posTo)) posTo = "left";
     }
     //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
     else if (absolutePointToObj.x < absolutePointFromObj.x) {
@@ -122,6 +127,8 @@ function getExtremePoints(relation, objectMap) {
         startY = absolutePointFromObj.y + relation.from.height / 2;
         endX = absolutePointToObj.x + relation.to.width;
         endY = absolutePointToObj.y + relation.to.height / 2;
+        if (Func.isNull(relation.posFrom)) posFrom = "left";
+        if (Func.isNull(relation.posTo)) posTo = "right";
     }
     //⬆️ fromObj стоит снизу, toObj стоит сверху
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y > absolutePointToObj.y) {
@@ -129,6 +136,8 @@ function getExtremePoints(relation, objectMap) {
         startY = absolutePointFromObj.y;
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y + relation.to.height;
+        if (Func.isNull(relation.posFrom)) posFrom = "top";
+        if (Func.isNull(relation.posTo)) posTo = "bottom";
     }
     //⬇️ fromObj стоит сверху, toObj стоит снизу
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y < absolutePointToObj.y) {
@@ -136,6 +145,8 @@ function getExtremePoints(relation, objectMap) {
         startY = absolutePointFromObj.y + relation.from.height;
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y;
+        if (Func.isNull(relation.posFrom)) posFrom = "bottom";
+        if (Func.isNull(relation.posTo)) posTo = "top";
     }
 
     //Если указано положение точки начального from объекта
@@ -175,7 +186,7 @@ function getExtremePoints(relation, objectMap) {
     }
 
 
-    return {startX: startX, startY: startY, endX: endX, endY: endY};
+    return {startX: startX, startY: startY, posFrom: posFrom, endX: endX, endY: endY, posTo: posTo};
 }
 
 
@@ -235,8 +246,7 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 
         //Если еще эту точку не посещали, и значит не просматривали смежные с ней
         if (!closed.has(pointHashCode)) {
-            closed.add(pointHashCode);
-
+            closed.add(pointHashCode);  //Помечаем что точка посещена
 
             let circle = new Konva.Circle({
                 x: nodePoint.point.x,
@@ -267,7 +277,7 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 
 
             //Если почти пришли к конечной точке, т.е. nodePoint - около финальной точки
-            if (isLatestStepPoint(nodePoint.point, endPoint, objectRelation)) {
+            if (isLatestStepPoint(nodePoint.point, extremePoints, objectRelation)) {
                 //координаты предпоследней точки
                 const latestPoint = new Point(nodePoint.point.x, endPoint.y);
                 // console.log("latestX", latestPoint.x);
@@ -360,11 +370,18 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 /*
 * Определение что stepPoint - предпоследняя точка, т.е. следующая - принадлежит конечному объекту
 * */
-function isLatestStepPoint(stepPoint, endPoint, objectRelation) {
+function isLatestStepPoint(stepPoint, extremePoints, objectRelation) {
+    const startPoint = new Point(extremePoints.startX, extremePoints.startY);
+    const endPoint = new Point(extremePoints.endX, extremePoints.endY);
     //Следующая точка куда потенциально можем пойти от текущей
     let nextPoint = null;
 
-    if (Func.isNull(objectRelation.posTo) || objectRelation.posTo === "left") {
+    // if (stepPoint.x == 350 && stepPoint.y == 80) {
+    //     console.log("LOOOOOOOOOOOOOOOOOOOOOgG");
+    //     console.log("extremePoints", extremePoints);
+    // }
+
+    if (extremePoints.posTo === "left") {
         nextPoint = new Point(stepPoint.x + defaultStepX, stepPoint.y);
 
         //Определяем - находится ли точка stepPoint у границы объекта, т.е. если шагнуть еще в nextPoint - то попадем в сам объект
@@ -372,32 +389,57 @@ function isLatestStepPoint(stepPoint, endPoint, objectRelation) {
             //определили что stepPoint около границы с конечным объектом
 
             //Определяем что дальше искать уже не надо и stepPoint - последняя точка перед конечной
-            if (stepPoint.y - defaultStepY < endPoint.y) {
-                return true;
+            if (startPoint.y >= endPoint.y) {   //идем снизу вверх
+                //проверка - перешла ли stepPoint конечную точку
+                if (stepPoint.y - defaultStepY < endPoint.y) {
+                    return true;
+                }
+            } else {
+                if (stepPoint.y + defaultStepY > endPoint.y) {
+                    return true;
+                }
             }
         }
-    } else if (objectRelation.posTo === "bottom") {
+    } else if (extremePoints.posTo === "bottom") {
         nextPoint = new Point(stepPoint.x, stepPoint.y - defaultStepY);
 
         if (isPointInObject(nextPoint, objectRelation.to)) {
-            if (stepPoint.x + defaultStepX > endPoint.x) {
-                return true;
+            if (startPoint.x >= endPoint.x) {
+                if (stepPoint.x - defaultStepX < endPoint.x) {
+                    return true;
+                }
+            } else {
+                if (stepPoint.x + defaultStepX > endPoint.x) {
+                    return true;
+                }
             }
         }
-    } else if (objectRelation.posTo === "right") {
+    } else if (extremePoints.posTo === "right") {
         nextPoint = new Point(stepPoint.x - defaultStepX, stepPoint.y);
 
         if (isPointInObject(nextPoint, objectRelation.to)) {
-            if (stepPoint.y - defaultStepY < endPoint.y) {
-                return true;
+            if (startPoint.y <= endPoint.y) {
+                if (stepPoint.y + defaultStepX > endPoint.y) {
+                    return true;
+                }
+            } else {
+                if (stepPoint.y - defaultStepY < endPoint.y) {
+                    return true;
+                }
             }
         }
-    } else if (objectRelation.posTo === "top") {
+    } else if (extremePoints.posTo === "top") {
         nextPoint = new Point(stepPoint.x, stepPoint.y + defaultStepY);
 
         if (isPointInObject(nextPoint, objectRelation.to)) {
-            if (stepPoint.x + defaultStepX > endPoint.x) {
-                return true;
+            if (startPoint.x <= endPoint.x) {
+                if (stepPoint.x + defaultStepX > endPoint.x) {
+                    return true;
+                }
+            } else {
+                if (stepPoint.x - defaultStepX < endPoint.x) {
+                    return true;
+                }
             }
         }
     }
