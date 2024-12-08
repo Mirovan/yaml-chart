@@ -41,7 +41,7 @@ function initObject(obj, lastObj, parent) {
     let parentAbsoluteX = 0;
     let parentAbsoluteY = 0;
 
-    //Если это не самый верхний объект
+    //Если это не самый верхний объект, т.е. обычный объект
     if (Func.notNull(parent)) {
         //Определяем - добавлять ли отступ от границы родителя
         //Если это конечный объект = box
@@ -58,28 +58,27 @@ function initObject(obj, lastObj, parent) {
             startObjX = startObjX + defaultMarginX;
             startObjY = startObjY + defaultMarginY;
         }
+
+        //Добавление отступа, если он указан
         if (Func.notNull(obj.marginX)) {
             startObjX = startObjX + obj.marginX;
         }
         if (Func.notNull(obj.marginY)) {
             startObjY = startObjY + obj.marginY;
         }
-        parentAbsoluteX = parent.absoluteX;
-        parentAbsoluteY = parent.absoluteY;
-    }
 
-    //Если какой-то объект (от того же родителя) уже стоит
-    if (lastObj != null) {
-        //По умолчанию располагаем объекта справа = inline
-        startObjX = lastObj.x + lastObj.width + defaultMarginX;
-        startObjY = lastObj.y;
-        //Если есть родитель у этих объектов, то проверяем ставить справа или вниз
-        if (Func.notNull(parent)) {
-            if (parent.layout === "column") {
-                startObjX = lastObj.x;
-                startObjY = lastObj.y + lastObj.height + defaultMarginY;
+        //Если какой-то объект (от того же родителя) уже стоит
+        if (lastObj != null) {
+            //По умолчанию располагаем объекта справа = inline
+            if (Func.isNull(parent.layout) || parent.layout === "inline") {
+                startObjX += lastObj.x + lastObj.width;
+            } else if (parent.layout === "column") {
+                startObjY += lastObj.y + lastObj.height;
             }
         }
+
+        parentAbsoluteX = parent.absoluteX;
+        parentAbsoluteY = parent.absoluteY;
     }
 
     //Начальные размеры объекта

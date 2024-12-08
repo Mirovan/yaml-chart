@@ -1,28 +1,16 @@
-
+#проверка отступов marginX, marginY
 data:
   layout: inline
   objects:
     group1:
+      layout: column
       objects:
         aaa1:
           type: box
-          marginY: 115
-#bug          marginX: 5
           name: aaa1
-    group2:
-      layout: column
-      objects:
         bbb2:
           type: box
+          marginX: 50
+          marginY: 50
           name: bbb2
-        ccc3:
-          type: box
-#bug
-          marginY: 55
-          name: ccc3
 
-relations:
-  aaa1-bbb2:
-    from: aaa1
-    to: bbb2
-    posTo: top

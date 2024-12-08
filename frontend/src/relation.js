@@ -195,7 +195,6 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 
     //Конечная точка
     const endPoint = new Point(extremePoints.endX, extremePoints.endY);
-    console.log("endPoint: ", extremePoints.endX, extremePoints.endY);
     let circle = new Konva.Circle({
         x: endPoint.x,
         y: endPoint.y,
@@ -269,8 +268,6 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 
             //Если почти пришли к конечной точке, т.е. nodePoint - около финальной точки
             if (isLatestStepPoint(nodePoint.point, endPoint, objectRelation)) {
-                console.log("LATEST:", nodePoint.point);
-
                 //координаты предпоследней точки
                 const latestPoint = new Point(nodePoint.point.x, endPoint.y);
                 // console.log("latestX", latestPoint.x);
@@ -287,7 +284,6 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
                 // canvasLayer.add(circle);
 
                 const path = [startNodePoint.point, ...buildPathByPoint(nodePoint), latestPoint, endPoint];
-                console.log("path", path.length);
                 for (let p of path) {
                     let circle = new Konva.Circle({
                         x: p.x,
@@ -303,7 +299,8 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
             }
 
 
-            //Если пришли к финальной точке
+            //Убрать: Предыдущий вариант проверки - Если пришли к финальной точке
+            /*
             if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
                 const path = [startNodePoint.point, ...buildPathByPoint(nodePoint)];
 
@@ -322,6 +319,7 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
                 //Результат, включая стартовую точку
                 return compressPoints(path);
             }
+             */
 
 
             //Защита от зацикливания
