@@ -13,10 +13,11 @@ data:
           objects:
             aaa:
               type: box
+#              marginX: 50
               name: aaa
             bbb:
               type: box
-#              marginX: 50
+              marginX: 50
               name: bbb
         group22:
           name: group22

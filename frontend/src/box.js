@@ -41,22 +41,23 @@ function initObject(obj, lastObj, parent) {
     let parentAbsoluteX = 0;
     let parentAbsoluteY = 0;
 
-    //Добавление отступа по умолчанию, если он не указан
-    if (Func.isNull(obj.marginX)) obj.marginX = defaultMarginX;
-    if (Func.isNull(obj.marginY)) obj.marginY = defaultMarginY;
-
     //Если это не самый верхний объект, т.е. обычный объект
     if (Func.notNull(parent)) {
-        startObjX = obj.marginX;
-        startObjY = obj.marginY;
-
         //Если у родителя border=none
         if (Func.notNull(parent) && Func.notNull(parent.border) && parent.border === "none") {
             //Нет предыдущего объекта у этого родителя
             if (Func.isNull(lastObj)) {
-                startObjX = 0;
-                startObjY = 0;
+                //Добавление отступа по умолчанию, если он не указан
+                if (Func.isNull(obj.marginX)) obj.marginX = 0;
+                if (Func.isNull(obj.marginY)) obj.marginY = 0;
+
+                startObjX = obj.marginX;
+                startObjY = obj.marginY;
             } else {
+                //Добавление отступа по умолчанию, если он не указан
+                if (Func.isNull(obj.marginX)) obj.marginX = defaultMarginX;
+                if (Func.isNull(obj.marginY)) obj.marginY = defaultMarginY;
+
                 //По умолчанию располагаем объекта справа = inline
                 if (Func.isNull(parent.layout) || parent.layout === "inline") {
                     startObjX = lastObj.x + lastObj.width + obj.marginX;
@@ -67,6 +68,13 @@ function initObject(obj, lastObj, parent) {
                 }
             }
         } else {
+            //Добавление отступа по умолчанию, если он не указан
+            if (Func.isNull(obj.marginX)) obj.marginX = defaultMarginX;
+            if (Func.isNull(obj.marginY)) obj.marginY = defaultMarginY;
+
+            startObjX = obj.marginX;
+            startObjY = obj.marginY;
+
             //Нет предыдущего объекта у этого родителя
             if (Func.notNull(lastObj)) {
                 //По умолчанию располагаем объекта справа = inline
