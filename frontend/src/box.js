@@ -182,6 +182,11 @@ export function draw(object, canvasLayer) {
         draggable: false,
         opacity: 0.5,
     });
+    //ToDo: сделать определение нажатого объекта
+    rect.setAttr('name', object.name);
+    rect.on('click', function () {
+        console.log("Name: ", rect.getAttr("name"));
+    });
     canvasLayer.add(rect);
 
     const text = new Konva.Text({

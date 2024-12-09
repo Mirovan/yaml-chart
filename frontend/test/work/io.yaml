@@ -1,8 +1,21 @@
 #deployment [io] Инфраструктурные облигации
 data:
   color: "#ededed"
-  layout: column
+  layout: inline
   objects:
+    DMZ:
+      objects:
+        VM-tls:
+          name: "VM tls (IP: 10.3.50.159)"
+          objects:
+            NGINX:
+              name: nginx (tls)
+              layout: column
+              objects:
+                io-endpoint-1:
+                  name: https://наш.дом.рф/io
+                io-endpoint-2:
+                  name: https://наш.дом.рф/io/api
     dom-internal:
       color: "#cfcfcf"
       type: group
@@ -16,25 +29,21 @@ data:
               layout: column
               name: k8s-<env>
               objects:
-                ns-io:
-                  color: "#ffffff"
-                  name: io-<env>
-                  objects:
-                    aaa:
-                      color: "#c9e7b7"
-                      type: box
-                      name: io.apps.k8s.<env>.domoy.ru/(.*)
-                    bbb:
-                      color: "#c9e7b7"
-                      type: box
-                      name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
-                    ccc:
-                      color: "#c9e7b7"
-                      type: box
-                      name: io-frontend-node-app
                 idm-group:
                   color: "#ffffff"
                   name: Подсистема ЕИСЖС.IDM
+                  objects:
+                    idm-ingress:
+                      color: "#c9e7b7"
+                      type: box
+                      name: idm.apps.k8s.<env>.domoy.ru/idm-services/
+                    bbb:
+                      color: "#c9e7b7"
+                      type: box
+                      name: idm-keycloak-java-app.svc.cluster.local:8080
+                ns-io:
+                  color: "#ffffff"
+                  name: io-<env>
                   objects:
                     ns-idm:
                       layout: column
@@ -43,7 +52,7 @@ data:
                         io-group-frontend:
                           border: none
                           objects:
-                            aaa1:
+                            io-ingress-1:
                               color: "#c9e7b7"
                               type: box
                               name: io.apps.k8s.<env>.domoy.ru/(.*)
@@ -84,7 +93,7 @@ data:
                         io-group-backend-node-app:
                           border: none
                           objects:
-                            aaa4:
+                            io-ingress-2:
                               color: "#c9e7b7"
                               type: box
                               name: io.apps.k8s.<env>.domoy.ru/([a].*)
@@ -122,12 +131,18 @@ data:
 
 
 relations:
-  aaa1-bbb1:
-    from: aaa1
-    to: bbb1
-  ссс1-bbb1:
-    from: ccc1
-    to: bbb1
-  ccc2-bbb2:
-    from: ccc2
-    to: bbb2
+  #nginx to ingress
+  io-endpoint-asd:
+    from: io-endpoint-1
+    to: io-ingress-1
+
+  #services and deployments
+#  aaa1-bbb1:
+#    from: aaa1
+#    to: bbb1
+#  ссс1-bbb1:
+#    from: ccc1
+#    to: bbb1
+#  ccc2-bbb2:
+#    from: ccc2
+#    to: bbb2
