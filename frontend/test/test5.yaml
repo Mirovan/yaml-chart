@@ -1,16 +1,28 @@
-#проверка отступов marginX, marginY
+#проверка при границе border=none
 data:
   layout: inline
   objects:
     group1:
-      layout: column
+      layout: inline
+      name: group1
+#      border: none
       objects:
-        aaa1:
-          type: box
-          name: aaa1
-        bbb2:
-          type: box
-          marginX: 50
-          marginY: 50
-          name: bbb2
+        group21:
+          name: group21
+#          border: none
+          objects:
+            aaa:
+              type: box
+              name: aaa
+            bbb:
+              type: box
+#              marginX: 50
+              name: bbb
+        group22:
+          name: group22
+#          border: none
+          objects:
+            ccc:
+              type: box
+              name: ccc
 

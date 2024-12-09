@@ -206,15 +206,15 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
 
     //Конечная точка
     const endPoint = new Point(extremePoints.endX, extremePoints.endY);
-    let circle = new Konva.Circle({
-        x: endPoint.x,
-        y: endPoint.y,
-        radius: 4,
-        fill: 'green',
-        stroke: 'black',
-        strokeWidth: 2,
-    });
-    canvasLayer.add(circle);
+    // let circle = new Konva.Circle({
+    //     x: endPoint.x,
+    //     y: endPoint.y,
+    //     radius: 4,
+    //     fill: 'green',
+    //     stroke: 'black',
+    //     strokeWidth: 2,
+    // });
+    // canvasLayer.add(circle);
 
     //множество частных решений
     const open = new Heap(function (a, b) {
@@ -248,19 +248,21 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
         if (!closed.has(pointHashCode)) {
             closed.add(pointHashCode);  //Помечаем что точка посещена
 
-            let circle = new Konva.Circle({
-                x: nodePoint.point.x,
-                y: nodePoint.point.y,
-                radius: 3,
-                fill: '#62a0ce',
-                stroke: '#458ba9',
-                strokeWidth: 1,
-            });
-            circle.on('mouseover', function () {
-                const mousePos = stage.getPointerPosition();
-                console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.priority);
-            });
-            canvasLayer.add(circle);
+            // let circle = new Konva.Circle({
+            //     x: nodePoint.point.x,
+            //     y: nodePoint.point.y,
+            //     radius: 3,
+            //     fill: '#62a0ce',
+            //     stroke: '#458ba9',
+            //     strokeWidth: 1,
+            // });
+            // circle.on('mouseover', function () {
+            //     const mousePos = stage.getPointerPosition();
+            //     console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.priority);
+            // });
+            // canvasLayer.add(circle);
+
+
             // const txt = new Konva.Text({
             //     x: nodePoint.point.x - 3,
             //     y: nodePoint.point.y - 4,
@@ -294,17 +296,17 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
                 // canvasLayer.add(circle);
 
                 const path = [startNodePoint.point, ...buildPathByPoint(nodePoint), latestPoint, endPoint];
-                for (let p of path) {
-                    let circle = new Konva.Circle({
-                        x: p.x,
-                        y: p.y,
-                        radius: 5,
-                        fill: '#ff0000',
-                        stroke: '#540303',
-                        strokeWidth: 1,
-                    });
-                    canvasLayer.add(circle);
-                }
+                // for (let p of path) {
+                //     let circle = new Konva.Circle({
+                //         x: p.x,
+                //         y: p.y,
+                //         radius: 5,
+                //         fill: '#ff0000',
+                //         stroke: '#540303',
+                //         strokeWidth: 1,
+                //     });
+                //     canvasLayer.add(circle);
+                // }
                 return compressPoints(path);
             }
 

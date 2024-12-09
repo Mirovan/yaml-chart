@@ -30,56 +30,56 @@ data:
           name: eee
 
 relations:
-#  ccc-1:
-#    from: ccc
-#    to: ddd
-#    posTo: left
-#  ccc-2:
-#    from: ccc
-#    to: ddd
-#    posTo: right
-#  ccc-3:
-#    from: ccc
-#    to: ddd
-#    posTo: top
-#  ccc-4:
-#    from: ccc
-#    to: ddd
-#    posTo: bottom
+  ccc-1:
+    from: ccc
+    to: ddd
+    posTo: left
+  ccc-2:
+    from: ccc
+    to: ddd
+    posTo: right
+  ccc-3:
+    from: ccc
+    to: ddd
+    posTo: top
+  ccc-4:
+    from: ccc
+    to: ddd
+    posTo: bottom
 
-#  ccc-5:
-#    from: ccc
-#    to: eee
-#    posTo: left
-#  ccc-6:
-#    from: ccc
-#    to: eee
-#    posTo: right
-#  ccc-7:
-#    from: ccc
-#    to: eee
-#    posTo: top
-#  ccc-8:
-#    from: ccc
-#    to: eee
-#    posTo: bottom
+  ccc-5:
+    from: ccc
+    to: eee
+    posTo: left
+  ccc-6:
+    from: ccc
+    to: eee
+    posTo: right
+  ccc-7:
+    from: ccc
+    to: eee
+    posTo: top
+  ccc-8:
+    from: ccc
+    to: eee
+    posTo: bottom
 
-#  ccc-9:
-#    from: ccc
-#    to: aaa
-#    posTo: left
-#  ccc-10:
-#    from: ccc
-#    to: aaa
-#    posTo: right
-#  ccc-11:
-#    from: ccc
-#    to: aaa
-#    posTo: top
-#  ccc-12:
-#    from: ccc
-#    to: aaa
-#    posTo: bottom
+  ccc-9:
+    from: ccc
+    to: aaa
+    posTo: left
+  ccc-10:
+    from: ccc
+    to: aaa
+    posTo: right
+  ccc-11:
+    from: ccc
+    to: aaa
+    posTo: top
+  ccc-12:
+    from: ccc
+    to: aaa
+    posTo: bottom
 
   ccc-13:
     from: ccc
