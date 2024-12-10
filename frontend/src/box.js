@@ -1,5 +1,6 @@
 import * as Func from "./functions";
 import Konva from "konva";
+import {updateManualRelation} from "./manual-relation.js";
 
 const defaultBoxWidth = 100;
 const defaultBoxHeight = 60;
@@ -184,11 +185,11 @@ export function draw(object, canvasLayer) {
         draggable: false,
         opacity: 0.5,
     });
-    rect.setAttr('id', object.id);
-    rect.setAttr('name', object.name);
-    rect.on('click', function () {
-        console.log("ID:", rect.getAttr("id"), "| Name:", rect.getAttr("name"));
-    });
+    // rect.setAttr('id', object.id);
+    // rect.setAttr('name', object.name);
+    // rect.on('click', function () {
+    //     console.log("ID:", rect.getAttr("id"), "| Name:", rect.getAttr("name"));
+    // });
     canvasLayer.add(rect);
 
     const text = new Konva.Text({
@@ -201,10 +202,9 @@ export function draw(object, canvasLayer) {
         fontFamily: 'Calibri',
         align: 'center',
     });
-    text.setAttr('id', object.id);
-    text.setAttr('name', object.name);;
     text.on('click', function () {
-        console.log("ID:", rect.getAttr("id"), "| Name:", rect.getAttr("name"));
+        console.log("ID:", object.id, "| Name:", object.name);
+        updateManualRelation(object.id);
     });
     canvasLayer.add(text);
 

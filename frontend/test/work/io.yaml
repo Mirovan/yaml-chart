@@ -37,7 +37,7 @@ data:
                       color: "#c9e7b7"
                       type: box
                       name: idm.apps.k8s.<env>.domoy.ru/idm-services/
-                    bbb:
+                    idm-keycloak-java-app-svc:
                       color: "#c9e7b7"
                       type: box
                       name: idm-keycloak-java-app.svc.cluster.local:8080
@@ -56,65 +56,76 @@ data:
                               color: "#c9e7b7"
                               type: box
                               name: io.apps.k8s.<env>.domoy.ru/(.*)
-                            bbb1:
+                            io-frontend-node-app-service:
                               color: "#c9e7b7"
                               type: box
                               name: http://io-frontend-node-app.io-<env>.svc.cluster.local:4401
-                            ccc1:
+                            io-frontend-node-app-deployment:
                               color: "#c9e7b7"
                               type: box
                               name: io-frontend-node-app
                         io-group-gotenberg:
                           border: none
                           objects:
-                            bbb2:
+                            io-gotenberg-node-app-service:
                               marginX: 120
                               marginY: 0
                               color: "#c9e7b7"
                               type: box
                               name: http://io-gotenberg-node-app.io-<env>.svc.cluster.local:3300
-                            ccc2:
+                            io-gotenberg-node-app-deployment:
                               color: "#c9e7b7"
                               type: box
                               name: io-gotenberg-node-app
                         io-group-ahd-node-adapter:
                           border: none
                           objects:
-                            bbb3:
+                            io-ahd-adapter-node-app-svc:
                               marginX: 120
                               marginY: 0
                               color: "#c9e7b7"
                               type: box
                               name: http://io-ahd-adapter-node-app.io-<env>.svc.cluster.local:3000
-                            ccc3:
+                            io-ahd-adapter-node-app-dpl:
                               color: "#c9e7b7"
                               type: box
                               name: io-ahd-adapter-node-app
-                        io-group-backend-node-app:
+                        io-group-backend-node-app-1:
                           border: none
                           objects:
                             io-ingress-2:
                               color: "#c9e7b7"
                               type: box
                               name: io.apps.k8s.<env>.domoy.ru/([a].*)
-                            bbb4:
+                            io-backend-node-app-service-1:
                               color: "#c9e7b7"
                               type: box
                               name: http://io-backend-node-app.io-<env>.svc.cluster.local:4402
-                            ccc4:
+                            io-backend-node-app-deployment:
                               color: "#c9e7b7"
                               type: box
                               name: io-backend-node-app
+                        io-group-backend-node-app-2:
+                          border: none
+                          objects:
+                            io-ingress-3:
+                              color: "#c9e7b7"
+                              type: box
+                              name: io.apps.k8s.<env>.domoy.ru/external/([a].*)
+                            io-backend-node-app-service-2:
+                              color: "#c9e7b7"
+                              type: box
+                              name: http://io-backend-node-app.io-<env>.svc.cluster.local:4403
                         io-group-1c-payments:
                           border: none
                           objects:
-                            bbb5:
+                            io-payments-1c-node-app-svc:
                               marginX: 120
                               marginY: 0
                               color: "#c9e7b7"
                               type: box
                               name: http://io-payments-1c-node-app.io-<env>.svc.cluster.local:8080
-                            ccc5:
+                            io-payments-1c-node-app-dpl:
                               color: "#c9e7b7"
                               type: box
                               name: io-payments-1c-node-app
@@ -136,13 +147,42 @@ relations:
     from: io-endpoint-1
     to: io-ingress-1
 
-  #services and deployments
-#  aaa1-bbb1:
-#    from: aaa1
-#    to: bbb1
-#  ссс1-bbb1:
-#    from: ccc1
-#    to: bbb1
-#  ccc2-bbb2:
-#    from: ccc2
-#    to: bbb2
+  io-ingress-1-io-frontend-node-app-service:
+    from: io-ingress-1
+    to: io-frontend-node-app-service
+  io-frontend-node-app-deployment-io-frontend-node-app-service:
+    from: io-frontend-node-app-deployment
+    to: io-frontend-node-app-service
+
+  io-gotenberg-node-app-deployment-io-gotenberg-node-app-service:
+    from: io-gotenberg-node-app-deployment
+    to: io-gotenberg-node-app-service
+
+  io-ahd-adapter-node-app-dpl-io-ahd-adapter-node-app-svc:
+    from: io-ahd-adapter-node-app-dpl
+    to: io-ahd-adapter-node-app-svc
+
+  io-endpoint-2-io-ingress-2:
+    from: io-endpoint-2
+    to: io-ingress-2
+  io-ingress-2-io-backend-node-app-service-1:
+    from: io-ingress-2
+    to: io-backend-node-app-service-1
+  io-backend-node-app-deployment-io-backend-node-app-service-1:
+    from: io-backend-node-app-deployment
+    to: io-backend-node-app-service-1
+
+  io-ingress-3-io-backend-node-app-service-2:
+    from: io-ingress-3
+    to: io-backend-node-app-service-2
+  io-backend-node-app-deployment-io-backend-node-app-service-2:
+    from: io-backend-node-app-deployment
+    to: io-backend-node-app-service-2
+
+  io-payments-1c-node-app-dpl-io-payments-1c-node-app-svc:
+    from: io-payments-1c-node-app-dpl
+    to: io-payments-1c-node-app-svc
+
+  io-backend-node-app-deployment-io-gotenberg-node-app-service:
+    from: io-backend-node-app-deployment
+    to: io-gotenberg-node-app-service

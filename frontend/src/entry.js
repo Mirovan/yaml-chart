@@ -4,6 +4,7 @@ import Konva from 'konva';
 import YAML from 'yaml';
 import * as Box from "./box.js";
 import * as Relation from "./relation.js";
+import {initManualRelation} from "./manual-relation.js";
 
 /**********************************************************************************/
 let stage;
@@ -26,6 +27,7 @@ document.addEventListener('DOMContentLoaded', function () {
     // fetch('http://localhost:3000/test6.yaml')
         .then(response => response.text())
         .then(response => {
+            initManualRelation();
             document.getElementById("yaml-text").innerHTML = response;
             // const yamlData = YAML.parse(document.getElementById("yaml-text").value);
 
