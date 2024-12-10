@@ -127,7 +127,9 @@ export function calcLayout(object, lastObj, parent) {
         lastObj = null;
         for (let key of innerObjects.keys()) {
             //Считаем координаты объекта
-            const innerObj = calcLayout(innerObjects.get(key), lastObj, object);
+            let innerObj = innerObjects.get(key);
+            innerObj.id = key;
+            innerObj = calcLayout(innerObj, lastObj, object);
             //Обновляем его в коллекции родителя
             innerObjects.set(key, innerObj);
             lastObj = innerObj;
@@ -182,10 +184,10 @@ export function draw(object, canvasLayer) {
         draggable: false,
         opacity: 0.5,
     });
-    //ToDo: сделать определение нажатого объекта
+    rect.setAttr('id', object.id);
     rect.setAttr('name', object.name);
     rect.on('click', function () {
-        console.log("Name: ", rect.getAttr("name"));
+        console.log("ID:", rect.getAttr("id"), "| Name:", rect.getAttr("name"));
     });
     canvasLayer.add(rect);
 
@@ -198,6 +200,11 @@ export function draw(object, canvasLayer) {
         fontSize: 12,
         fontFamily: 'Calibri',
         align: 'center',
+    });
+    text.setAttr('id', object.id);
+    text.setAttr('name', object.name);;
+    text.on('click', function () {
+        console.log("ID:", rect.getAttr("id"), "| Name:", rect.getAttr("name"));
     });
     canvasLayer.add(text);
 

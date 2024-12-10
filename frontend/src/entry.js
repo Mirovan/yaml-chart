@@ -36,9 +36,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
 function reloadChart(yaml) {
     const yamlData = YAML.parse(yaml);
+    const mainObj = yamlData.data;
+    mainObj.id = "data";
 
-    //Вычисление координат
-    const diagramObj = Box.calcLayout(yamlData.data, null, null);
+    //Вычисление координат для расстановки объектов
+    const diagramObj = Box.calcLayout(mainObj, null, null);
 
     //Отрисовка
     Box.draw(diagramObj, canvasLayer);
