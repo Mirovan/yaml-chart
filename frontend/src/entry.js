@@ -23,8 +23,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     stage.add(canvasLayer);
 
-    fetch('http://localhost:3000/work/io.yaml')
-    // fetch('http://localhost:3000/test6.yaml')
+    // fetch('http://localhost:3000/work/io.yaml')
+    fetch('http://localhost:3000/test7.yaml')
         .then(response => response.text())
         .then(response => {
             initManualRelation();
@@ -44,14 +44,16 @@ function reloadChart(yaml) {
     //Вычисление координат для расстановки объектов
     const diagramObj = Box.calcLayout(mainObj, null, null);
 
-    //Отрисовка
+    //Отрисовка обеъктов
     Box.draw(diagramObj, canvasLayer);
 
-    //Вычисление координат
+    //Вычисление связей
     const relations = Relation.calcAllPathes(yamlData.relations, diagramObj, stage, canvasLayer);
     for (let rel of relations) {
-        const points = []
-        for (let p of rel) {
+        const points = [];
+
+        const compressRel = Relation.compressPoints(rel);
+        for (let p of compressRel) {
             points.push(p.x);
             points.push(p.y);
         }

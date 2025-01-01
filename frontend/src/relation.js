@@ -28,7 +28,7 @@ export class ObjectRelation {
 * Расчет линий
 * */
 export function calcAllPathes(relationObject, object, stage, canvasLayer) {
-    const result = [];
+    const resultPathes = [];
 
     //Список всех объектов в плоской структуре
     const objectMap = Box.dataObjectToMap(object, null);
@@ -71,7 +71,8 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
 
 
             //Линия, состоящая из точек от одного объекта до другого
-            let pathPoints = calcPath(objectRelation, objectMap, stage, canvasLayer);
+
+            let pathPoints = calcPath(objectRelation, objectMap, resultPathes, stage, canvasLayer);
 
             // for (let p of pathPoints) {
             //     let circle = new Konva.Circle({
@@ -85,18 +86,18 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
             //     canvasLayer.add(circle);
             // }
 
-            result.push(pathPoints);
+            resultPathes.push(pathPoints);
         }
     }
 
-    return result;
+    return resultPathes;
 }
 
 
 /*
-* Определение координаты первой точки соединительной линии
+* Определение крайних точек соединительной линии
 * */
-function getExtremePoints(relation, objectMap) {
+function getExtremePoints(relation, objectMap, pathes) {
     //Координаты (точек верхнего угла) объектов которые надо соединить
     const absolutePointFromObj = Box.getAbsolutePoint(relation.from, objectMap);
     const absolutePointToObj = Box.getAbsolutePoint(relation.to, objectMap);
@@ -185,6 +186,17 @@ function getExtremePoints(relation, objectMap) {
         endY = absolutePointToObj.y + relation.to.height / 2;
     }
 
+    //Пытаемся сдвинуть начальную координату, чтобы линии не накладывались
+    // console.log("---------------------------");
+    // console.log(relation);
+    // console.log("pathes len", pathes.length);
+    //ToDo: переписать pathes[] на set("x,y") для ускорения поиска крайних точек соединительной линии
+    for (let i=0; i<pathes.length; i++) {
+        if (pathes[i][0].x === startX && pathes[i][0].y === startY) {
+            console.log("Equals start point", pathes[i][0]);
+            startY = startY + defaultStepY;
+        }
+    }
 
     return {startX: startX, startY: startY, posFrom: posFrom, endX: endX, endY: endY, posTo: posTo};
 }
@@ -194,12 +206,13 @@ function getExtremePoints(relation, objectMap) {
 * Расчет точек для соединительной линии
 * Используется алгоритм А* и манхеттеновские расстояния
 *
-* objectRelation -
+* objectRelation - объект - путь
 * objectMap - плоская Map с объектами
+* pathes - уже расчитанные пути
 * */
-function calcPath(objectRelation, objectMap, stage, canvasLayer) {
+function calcPath(objectRelation, objectMap, pathes, stage, canvasLayer) {
     //Крайние точки для рисования линии (начальная и конечная)
-    let extremePoints = getExtremePoints(objectRelation, objectMap);
+    let extremePoints = getExtremePoints(objectRelation, objectMap, pathes);
 
     //Стартовая точка с координатами x, y. Приоритет в очереди = 1
     const startNodePoint = new NodePoint(new Point(extremePoints.startX, extremePoints.startY), null, 1, 1);
@@ -307,65 +320,103 @@ function calcPath(objectRelation, objectMap, stage, canvasLayer) {
                 //     });
                 //     canvasLayer.add(circle);
                 // }
-                return compressPoints(path);
-            }
+
+                //Сжимаем путь
+                // return compressPoints(path);
+                return path;
+            } else {
 
 
-            //Убрать: Предыдущий вариант проверки - Если пришли к финальной точке
-            /*
-            if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
-                const path = [startNodePoint.point, ...buildPathByPoint(nodePoint)];
+                //Убрать: Предыдущий вариант проверки - Если пришли к финальной точке
+                /*
+                if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
+                    const path = [startNodePoint.point, ...buildPathByPoint(nodePoint)];
 
-                // for (let p of path) {
-                //     let circle = new Konva.Circle({
-                //         x: p.x,
-                //         y: p.y,
-                //         radius: 5,
-                //         fill: '#ff0000',
-                //         stroke: '#540303',
-                //         strokeWidth: 1,
-                //     });
-                //     canvasLayer.add(circle);
-                // }
+                    // for (let p of path) {
+                    //     let circle = new Konva.Circle({
+                    //         x: p.x,
+                    //         y: p.y,
+                    //         radius: 5,
+                    //         fill: '#ff0000',
+                    //         stroke: '#540303',
+                    //         strokeWidth: 1,
+                    //     });
+                    //     canvasLayer.add(circle);
+                    // }
 
-                //Результат, включая стартовую точку
-                return compressPoints(path);
-            }
-             */
-
-
-            //Защита от зацикливания
-            exitIterator++;
-            if (exitIterator > 10000) {
-                console.log("EXIT BY ITERATOR !!!");
-                break;
-            }
+                    //Результат, включая стартовую точку
+                    return compressPoints(path);
+                }
+                 */
 
 
-            //вверх
-            let stepNodePoint = new NodePoint(new Point(nodePoint.point.x, nodePoint.point.y - defaultStepY), nodePoint, nodePoint.priority + 1, 1);
-            if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
-                open.push(stepNodePoint);
-            }
-            //вправо
-            stepNodePoint = new NodePoint(new Point(nodePoint.point.x + defaultStepX, nodePoint.point.y), nodePoint, nodePoint.priority + 1, 2);
-            if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
-                open.push(stepNodePoint);
-            }
-            //вниз
-            stepNodePoint = new NodePoint(new Point(nodePoint.point.x, nodePoint.point.y + defaultStepY), nodePoint, nodePoint.priority + 1, 3);
-            if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
-                open.push(stepNodePoint);
-            }
-            //влево
-            stepNodePoint = new NodePoint(new Point(nodePoint.point.x - defaultStepX, nodePoint.point.y), nodePoint, nodePoint.priority + 1, 4);
-            if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
-                open.push(stepNodePoint);
+                //Защита от зацикливания
+                exitIterator++;
+                if (exitIterator > 10000) {
+                    console.log("EXIT BY ITERATOR !!!");
+                    break;
+                }
+
+
+                //вверх
+                let stepNodePoint = new NodePoint(new Point(nodePoint.point.x, nodePoint.point.y - defaultStepY), nodePoint, nodePoint.priority + 1, 1);
+                if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
+                    if (isOccupiedPoint(stepNodePoint.point, pathes)) {
+                        stepNodePoint.priority += 100;
+                        console.log("occupied 1");
+                    }
+                    open.push(stepNodePoint);
+                }
+                //вправо
+                stepNodePoint = new NodePoint(new Point(nodePoint.point.x + defaultStepX, nodePoint.point.y), nodePoint, nodePoint.priority + 1, 2);
+                if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
+                    if (isOccupiedPoint(stepNodePoint.point, pathes)) {
+                        stepNodePoint.priority += 100;
+                        console.log("occupied 2");
+                    }
+                    open.push(stepNodePoint);
+                }
+                //вниз
+                stepNodePoint = new NodePoint(new Point(nodePoint.point.x, nodePoint.point.y + defaultStepY), nodePoint, nodePoint.priority + 1, 3);
+                if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
+                    if (isOccupiedPoint(stepNodePoint.point, pathes)) {
+                        stepNodePoint.priority += 100;
+                        console.log("occupied 3");
+
+                    }
+                    open.push(stepNodePoint);
+                }
+                //влево
+                stepNodePoint = new NodePoint(new Point(nodePoint.point.x - defaultStepX, nodePoint.point.y), nodePoint, nodePoint.priority + 1, 4);
+                if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
+                    if (isOccupiedPoint(stepNodePoint.point, pathes)) {
+                        stepNodePoint.priority += 100;
+                        console.log("occupied 4");
+                    }
+                    open.push(stepNodePoint);
+                }
             }
         }
     }
 
     return result;
+}
+
+
+/*
+* Проверяем - занята ли эта точка, т.е. через неё уже проходит другая линия
+* */
+function isOccupiedPoint(point, pathes) {
+    //ToDo: переписать на использование set
+    for (let i=0; i<pathes.length; i++) {
+        for (let j=0; j<pathes[i].length; j++) {
+            if (pathes[i][j].x === point.x && pathes[i][j].y === point.y) {
+                console.log("Equal", pathes[i][0]);
+                return true;
+            }
+        }
+    }
+    return false;
 }
 
 
@@ -514,7 +565,7 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
             }
         }
 
-        //Условно можем идти только по положительны координатам
+        //Можем идти только по положительны координатам (условно)
         if (nodePoint.point.x >= 0 && nodePoint.point.y >= 0) {
             //Если точка доступна(не принадлежит объекту через который нельзя рисовать)
             // или это конечная точка - добавляем в очередь
@@ -571,7 +622,7 @@ function buildPathByPoint(nodePoint) {
 * Сжатие точек в линию.
 * points - коллекция точек
 * */
-function compressPoints(points) {
+export function compressPoints(points) {
     const res = [];
     res.push(points[0]);
 

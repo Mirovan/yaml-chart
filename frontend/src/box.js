@@ -203,7 +203,7 @@ export function draw(object, canvasLayer) {
         align: 'center',
     });
     text.on('click', function () {
-        console.log("ID:", object.id, "| Name:", object.name);
+        // console.log("ID:", object.id, "| Name:", object.name);
         updateManualRelation(object.id);
     });
     canvasLayer.add(text);
