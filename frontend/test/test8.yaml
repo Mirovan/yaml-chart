@@ -1,0 +1,33 @@
+#проверка отступа соединительных линий
+data:
+  layout: inline
+  objects:
+    group1:
+      layout: inline
+      name: group1
+      objects:
+        group21:
+          name: group21
+          objects:
+            bbb:
+              type: box
+              name: bbb
+        group22:
+          name: group22
+          layout: column
+          objects:
+            ccc:
+              type: box
+              name: ccc
+              marginY: 100
+            ddd:
+              type: box
+              name: ddd
+
+relations:
+  ccc-bbb:
+    from: ccc
+    to: bbb
+  ddd-bbb:
+    from: ddd
+    to: bbb

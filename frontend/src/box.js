@@ -1,11 +1,23 @@
 import * as Func from "./functions";
 import Konva from "konva";
 import {updateManualRelation} from "./manual-relation.js";
+import {config} from './config.js';
+
 
 const defaultBoxWidth = 100;
 const defaultBoxHeight = 60;
 const defaultMarginX = 20;
 const defaultMarginY = 20;
+
+
+class Box {
+    /*
+    * object - объект-прямоугольник на диаграмме
+    * */
+    constructor(object) {
+        Object.assign(this, object);
+    }
+}
 
 
 /*
@@ -33,7 +45,9 @@ export function getAbsolutePoint(object, objectMap) {
 /*
 * Инициализация объекта и задание его границ
 * */
-function initObject(obj, lastObj, parent) {
+function initObjectLayout(obj, lastObj, parent) {
+    obj = new Box(obj);
+
     //Начальная координата для вставки объекта
     let startObjX = 0;
     let startObjY = 0;
@@ -116,11 +130,42 @@ function initObject(obj, lastObj, parent) {
 
 
 /*
+* Определение точек для соединительных линий
+* */
+function initObjectConnectionPoints(object) {
+    //Очереди возможных точек слева/справа
+    let verticalPointsQueue = [];
+    for (let i = config.defaultStepY; i <= object.height / 2; i = i + config.defaultStepY) {
+        verticalPointsQueue.unshift(i);
+        if (object.height - i !== i) {
+            verticalPointsQueue.unshift(object.height - i);
+        }
+    }
+
+    //Очереди возможных точек внизу/вверху
+    let horizontalPointsQueue = [];
+    for (let i = config.defaultStepX; i <= object.width / 2; i = i + config.defaultStepX) {
+        horizontalPointsQueue.unshift(i);
+        if (object.width - i !== i) {
+            horizontalPointsQueue.unshift(object.width - i);
+        }
+    }
+
+    object.pointsQueueRight = verticalPointsQueue;
+    object.pointsQueueLeft = verticalPointsQueue;
+    object.pointsQueueTop = horizontalPointsQueue;
+    object.pointsQueueBottom = horizontalPointsQueue;
+
+    return object;
+}
+
+
+/*
 * Расчет координат для каждого объекта.
 * Координаты расстановки объектов - относительные
 * */
 export function calcLayout(object, lastObj, parent) {
-    object = initObject(object, lastObj, parent);
+    object = initObjectLayout(object, lastObj, parent);
 
     //Для каждого внутреннего объекта рассчитываем куда его поставить
     if (Func.notNull(object.objects)) {
@@ -157,6 +202,8 @@ export function calcLayout(object, lastObj, parent) {
             object.height = heightObjX + defaultMarginY;
         }
     }
+
+    object = initObjectConnectionPoints(object);
 
     return object;
 }

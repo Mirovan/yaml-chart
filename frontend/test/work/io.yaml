@@ -74,6 +74,7 @@ data:
                               type: box
                               name: http://io-gotenberg-node-app.io-<env>.svc.cluster.local:3300
                             io-gotenberg-node-app-deployment:
+                              marginX: 120
                               color: "#c9e7b7"
                               type: box
                               name: io-gotenberg-node-app
@@ -87,6 +88,7 @@ data:
                               type: box
                               name: http://io-ahd-adapter-node-app.io-<env>.svc.cluster.local:3000
                             io-ahd-adapter-node-app-dpl:
+                              marginX: 120
                               color: "#c9e7b7"
                               type: box
                               name: io-ahd-adapter-node-app
@@ -102,6 +104,7 @@ data:
                               type: box
                               name: http://io-backend-node-app.io-<env>.svc.cluster.local:4402
                             io-backend-node-app-deployment:
+                              marginX: 120
                               color: "#c9e7b7"
                               type: box
                               name: io-backend-node-app
