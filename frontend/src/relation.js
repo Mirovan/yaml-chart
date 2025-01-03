@@ -10,12 +10,14 @@ export class ObjectRelation {
     /*
     * from, to - соединяемые объекты
     * fromSide, toSide - тип входа/выхода в объект - top|right|bottom|left
+    * color - цвет линии
     * */
-    constructor(from, to, fromSide, toSide) {
+    constructor(from, to, fromSide, toSide, color) {
         this.from = from;
         this.to = to;
         this.fromSide = fromSide;
         this.toSide = toSide;
+        this.color = color;
     }
 }
 
@@ -70,6 +72,8 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
 
             let pathPoints = calcPath(objectRelation, objectMap, resultPathes, stage, canvasLayer);
 
+            const path = {points: pathPoints, color: rel.color};
+
             // for (let p of pathPoints) {
             //     let circle = new Konva.Circle({
             //         x: p.x,
@@ -82,7 +86,7 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
             //     canvasLayer.add(circle);
             // }
 
-            resultPathes.push(pathPoints);
+            resultPathes.push(path);
         }
     }
 
@@ -129,7 +133,7 @@ function getExtremePoints(relation, objectMap, pathes) {
     //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
     else if (absolutePointToObj.x < absolutePointFromObj.x) {
         startX = absolutePointFromObj.x;
-        startY = absolutePointFromObj.y + relation.from.height / 2;
+        startY = absolutePointFromObj.y + fromPointY;
         endX = absolutePointToObj.x + relation.to.width;
         endY = absolutePointToObj.y + relation.to.height / 2;
         if (Func.isNull(relation.fromSide)) fromSide = "left";

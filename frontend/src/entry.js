@@ -4,6 +4,7 @@ import Konva from 'konva';
 import YAML from 'yaml';
 import * as Box from "./box.js";
 import * as Relation from "./relation.js";
+import * as Func from "./functions.js";
 import {initManualRelation} from "./manual-relation.js";
 
 /**********************************************************************************/
@@ -52,15 +53,18 @@ function reloadChart(yaml) {
     for (let rel of relations) {
         const points = [];
 
-        const compressRel = Relation.compressPoints(rel);
+        const compressRel = Relation.compressPoints(rel.points);
         for (let p of compressRel) {
             points.push(p.x);
             points.push(p.y);
         }
 
+        console.log(rel);
+        let color = "#492f2f";
+        if (Func.notNull(rel.color)) color = rel.color;
         const line = new Konva.Arrow({
             points: points,
-            stroke: "#492f2f",
+            stroke: color,
             strokeWidth: 2,
             pointerWidth: 6,
             pointerLength: 6,
