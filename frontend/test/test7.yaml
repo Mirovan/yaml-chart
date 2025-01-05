@@ -9,7 +9,6 @@ data:
         group22:
           name: group22
           layout: column
-          marginX: 50
           objects:
             bbb:
               type: box
@@ -20,6 +19,7 @@ data:
             ddd:
               type: box
               name: ddd
+              marginY: 50
         group21:
           name: group21
           objects:
@@ -29,6 +29,11 @@ data:
               name: aaa
 
 relations:
+  aaa-ddd:
+    from: aaa
+    to: ddd
+    color: "#0000ff"
+    sideFrom: right
   aaa-bbb:
     from: aaa
     to: bbb
@@ -37,7 +42,3 @@ relations:
     from: aaa
     to: ccc
     color: "#00ff00"
-  aaa-ddd:
-    from: aaa
-    to: ddd
-    color: "#0000ff"

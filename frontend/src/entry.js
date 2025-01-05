@@ -54,12 +54,14 @@ function reloadChart(yaml) {
         const points = [];
 
         const compressRel = Relation.compressPoints(rel.points);
+        // console.log("compressRel", compressRel);
         for (let p of compressRel) {
-            points.push(p.x);
-            points.push(p.y);
+            if (Func.notNull(p)) {
+                points.push(p.x);
+                points.push(p.y);
+            }
         }
 
-        console.log(rel);
         let color = "#492f2f";
         if (Func.notNull(rel.color)) color = rel.color;
         const line = new Konva.Arrow({
@@ -74,16 +76,16 @@ function reloadChart(yaml) {
         canvasLayer.add(line);
     }
 
-    // drawLineNet(canvasLayer);
+    drawLineNet(canvasLayer);
 }
 
 
 function drawLineNet(canvasLayer) {
     const color = '#1c4d9c';
 
-    for (let i=0; i<300; i += 10) {
+    for (let i=0; i<400; i += 10) {
         const line = new Konva.Line({
-            points: [0, i, 300, i],
+            points: [0, i, 400, i],
             stroke: color,
             strokeWidth: 1,
             lineCap: 'round',
@@ -93,9 +95,9 @@ function drawLineNet(canvasLayer) {
         canvasLayer.add(line);
     }
 
-    for (let i=0; i<300; i += 10) {
+    for (let i=0; i<400; i += 10) {
         const line = new Konva.Line({
-            points: [i, 0, i, 300],
+            points: [i, 0, i, 400],
             stroke: color,
             strokeWidth: 1,
             lineCap: 'round',
@@ -106,8 +108,8 @@ function drawLineNet(canvasLayer) {
     }
 
     // let circle = new Konva.Circle({
-    //     x: 120,
-    //     y: 90,
+    //     x: 320,
+    //     y: 170,
     //     radius: 6,
     //     fill: 'green',
     //     stroke: 'black',

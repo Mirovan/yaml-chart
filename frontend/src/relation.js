@@ -9,15 +9,13 @@ import Konva from "konva";
 export class ObjectRelation {
     /*
     * from, to - соединяемые объекты
-    * fromSide, toSide - тип входа/выхода в объект - top|right|bottom|left
+    * sideFrom, sideTo - тип входа/выхода в объект - top|right|bottom|left
     * color - цвет линии
     * */
-    constructor(from, to, fromSide, toSide, color) {
+    constructor(from, to, relation) {
+        Object.assign(this, relation);
         this.from = from;
         this.to = to;
-        this.fromSide = fromSide;
-        this.toSide = toSide;
-        this.color = color;
     }
 }
 
@@ -25,21 +23,58 @@ export class ObjectRelation {
 /*
 * Расчет линий
 * */
-export function calcAllPathes(relationObject, object, stage, canvasLayer) {
+export function calcAllPathes(relations, diagramObject, stage, canvasLayer) {
     const resultPathes = [];
 
-    //Список всех объектов в плоской структуре
-    const objectMap = Box.dataObjectToMap(object, null);
+    //Список всех объектов в Map
+    const objectMap = Box.dataObjectToMap(diagramObject, null);
 
-    if (Func.notNull(relationObject)) {
+    if (Func.notNull(relations)) {
+        //Map всех связей. Ключ - id как в yaml, значение - сама связь
+        const relationRawMap = new Map(Object.entries(relations));
+
+        //формируем Map всех связей.
+        //Ключ - id объекта из которого выходит связь, значение - массив его связей
+        const objectRelationMap = new Map();
+        for (let key of relationRawMap.keys()) {
+            const rel = relationRawMap.get(key);
+            const fromObj = objectMap.get(rel.from);
+            if (!objectRelationMap.has(fromObj.id)) {
+                objectRelationMap.set(fromObj.id, []);
+            }
+            let relArr = objectRelationMap.get(fromObj.id);
+            relArr.push(rel);
+            objectRelationMap.set(fromObj.id, relArr);
+        }
+
+        //Перебираем все объекты и добавляем им связи
+        //Для каждого объекта добавляется 4 списка с исходящими связями от разных сторон
+        for (let key of objectMap.keys()) {
+            const obj = objectMap.get(key);
+            Box.updateObjectRelations(obj, objectRelationMap.get(obj.id), objectMap);
+        }
+
+        //Проходим по всем объектам, и расчитываем соединительные линии для каждого
+        for (let key of objectMap.keys()) {
+            const obj = objectMap.get(key);
+
+            calcPathesBySide(obj.relations.left, obj, objectMap, resultPathes, stage, canvasLayer);
+            calcPathesBySide(obj.relations.right, obj, objectMap, resultPathes, stage, canvasLayer);
+        }
+
+    }
+
+
+    /*
+    if (Func.notNull(relations)) {
         //Map связей
-        let relations = new Map(Object.entries(relationObject));
+        let relationMap = new Map(Object.entries(relations));
 
         //Проходим по всем связям объектов
-        for (let key of relations.keys()) {
-            const rel = relations.get(key);
+        for (let key of relationMap.keys()) {
+            const rel = relationMap.get(key);
 
-            const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.fromSide, rel.toSide);
+            const objectRelation = new ObjectRelation(objectMap.get(rel.from), objectMap.get(rel.to), rel.sideFrom, rel.sideTo, rel.color);
 
             //////////////////////////////////////////////////
             //Рисуем для дебага
@@ -69,7 +104,6 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
 
 
             //Линия, состоящая из точек от одного объекта до другого
-
             let pathPoints = calcPath(objectRelation, objectMap, resultPathes, stage, canvasLayer);
 
             const path = {points: pathPoints, color: rel.color};
@@ -89,14 +123,35 @@ export function calcAllPathes(relationObject, object, stage, canvasLayer) {
             resultPathes.push(path);
         }
     }
+     */
 
     return resultPathes;
 }
 
 
 /*
+* Расчет точек соединительных линий для стороны sideArr[]
+* sideArr - массив соелинительных линий на определенной стороне
+* */
+function calcPathesBySide(sideArr, obj, objectMap, resultPathes, stage, canvasLayer) {
+    //Для каждой соединительной линии (на определенной стороне) вычисляем путь
+    for (let i = 0; i < sideArr.length; i++) {
+        const rel = sideArr[i];
+        const objectRelation = new ObjectRelation(obj, objectMap.get(rel.to), rel);
+        //Линия, состоящая из точек от одного объекта до другого
+        let pathPoints = calcPath(objectRelation, i, objectMap, resultPathes, stage, canvasLayer);
+
+        const path = {points: pathPoints, color: rel.color};
+        resultPathes.push(path);
+    }
+}
+
+
+/*
 * Определение крайних точек соединительной линии
 * */
+
+/*
 function getExtremePoints(relation, objectMap, pathes) {
     //Координаты (точек верхнего угла) объектов которые надо соединить
     const absolutePointFromObj = Box.getAbsolutePoint(relation.from, objectMap);
@@ -116,8 +171,8 @@ function getExtremePoints(relation, objectMap, pathes) {
 
 
     //Откуда и Куда
-    let fromSide = relation.fromSide;
-    let toSide = relation.toSide;
+    let sideFrom = relation.sideFrom;
+    let sideTo = relation.sideTo;
 
 
     //Вычисляем расположение точек (от какой стороны и куда) по дефолту (если не указано откуда и куда)
@@ -127,8 +182,8 @@ function getExtremePoints(relation, objectMap, pathes) {
         startY = absolutePointFromObj.y + fromPointY;
         endX = absolutePointToObj.x;
         endY = absolutePointToObj.y + relation.to.height / 2;
-        if (Func.isNull(relation.fromSide)) fromSide = "right";
-        if (Func.isNull(relation.toSide)) toSide = "left";
+        if (Func.isNull(relation.sideFrom)) sideFrom = "right";
+        if (Func.isNull(relation.sideTo)) sideTo = "left";
     }
     //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
     else if (absolutePointToObj.x < absolutePointFromObj.x) {
@@ -136,8 +191,8 @@ function getExtremePoints(relation, objectMap, pathes) {
         startY = absolutePointFromObj.y + fromPointY;
         endX = absolutePointToObj.x + relation.to.width;
         endY = absolutePointToObj.y + relation.to.height / 2;
-        if (Func.isNull(relation.fromSide)) fromSide = "left";
-        if (Func.isNull(relation.toSide)) toSide = "right";
+        if (Func.isNull(relation.sideFrom)) sideFrom = "left";
+        if (Func.isNull(relation.sideTo)) sideTo = "right";
     }
     //⬆️ fromObj стоит снизу, toObj стоит сверху
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y > absolutePointToObj.y) {
@@ -145,8 +200,8 @@ function getExtremePoints(relation, objectMap, pathes) {
         startY = absolutePointFromObj.y;
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y + relation.to.height;
-        if (Func.isNull(relation.fromSide)) fromSide = "top";
-        if (Func.isNull(relation.toSide)) toSide = "bottom";
+        if (Func.isNull(relation.sideFrom)) sideFrom = "top";
+        if (Func.isNull(relation.sideTo)) sideTo = "bottom";
     }
     //⬇️ fromObj стоит сверху, toObj стоит снизу
     else if (absolutePointFromObj.x === absolutePointToObj.x && absolutePointFromObj.y < absolutePointToObj.y) {
@@ -154,42 +209,42 @@ function getExtremePoints(relation, objectMap, pathes) {
         startY = absolutePointFromObj.y + relation.from.height;
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y;
-        if (Func.isNull(relation.fromSide)) fromSide = "bottom";
-        if (Func.isNull(relation.toSide)) toSide = "top";
+        if (Func.isNull(relation.sideFrom)) sideFrom = "bottom";
+        if (Func.isNull(relation.sideTo)) sideTo = "top";
     }
 
     //Если указано положение точки начального from объекта
-    if (relation.fromSide === "top") {
+    if (relation.sideFrom === "top") {
         startX = absolutePointFromObj.x + relation.from.width / 2;
         startY = absolutePointFromObj.y;
     }
-    if (relation.fromSide === "right") {
+    if (relation.sideFrom === "right") {
         startX = absolutePointFromObj.x + relation.from.width;
         startY = absolutePointFromObj.y + relation.from.height / 2;
     }
-    if (relation.fromSide === "bottom") {
+    if (relation.sideFrom === "bottom") {
         startX = absolutePointFromObj.x + relation.from.width / 2;
         startY = absolutePointFromObj.y + relation.from.height;
     }
-    if (relation.fromSide === "left") {
+    if (relation.sideFrom === "left") {
         startX = absolutePointFromObj.x;
         startY = absolutePointFromObj.y + relation.from.height / 2;
     }
 
     //Если указано положение точки конечного to объекта
-    if (relation.toSide === "top") {
+    if (relation.sideTo === "top") {
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y;
     }
-    if (relation.toSide === "right") {
+    if (relation.sideTo === "right") {
         endX = absolutePointToObj.x + relation.to.width;
         endY = absolutePointToObj.y + relation.to.height / 2;
     }
-    if (relation.toSide === "bottom") {
+    if (relation.sideTo === "bottom") {
         endX = absolutePointToObj.x + relation.to.width / 2;
         endY = absolutePointToObj.y + relation.to.height;
     }
-    if (relation.toSide === "left") {
+    if (relation.sideTo === "left") {
         endX = absolutePointToObj.x;
         endY = absolutePointToObj.y + relation.to.height / 2;
     }
@@ -206,7 +261,59 @@ function getExtremePoints(relation, objectMap, pathes) {
     //     }
     // }
 
-    return {startX: startX, startY: startY, fromSide: fromSide, endX: endX, endY: endY, toSide: toSide};
+    return {startX: startX, startY: startY, sideFrom: sideFrom, endX: endX, endY: endY, sideTo: sideTo};
+}
+*/
+
+function getExtremePoints(relation, indexBySide, objectMap) {
+    //Координаты (точек верхнего угла) объектов которые надо соединить
+    const absolutePointFromObj = Box.getAbsolutePoint(relation.from, objectMap);
+    const absolutePointToObj = Box.getAbsolutePoint(relation.to, objectMap);
+
+    //Координаты по дефолту
+    let startX = absolutePointFromObj.x + relation.from.width;
+    let startY = absolutePointFromObj.y + relation.from.height / 2;
+    let endX = absolutePointToObj.x;
+    let endY = absolutePointToObj.y + relation.to.height / 2;
+    //END координаты по дефолту
+
+    if (relation.sideFrom === "left") {
+        const startIndex = getRelationStartSideIndex(relation.from.relations.left, relation.from.height, config.defaultStepY);
+        startX = absolutePointFromObj.x;
+        startY = absolutePointFromObj.y + config.defaultStepY * (startIndex + indexBySide);
+    } else if (relation.sideFrom === "right") {
+        const startIndex = getRelationStartSideIndex(relation.from.relations.right, relation.from.height, config.defaultStepY);
+        startX = absolutePointFromObj.x + relation.from.width;
+        startY = absolutePointFromObj.y + config.defaultStepY * (startIndex + indexBySide);
+    }
+
+
+    return {
+        startX: startX,
+        startY: startY,
+        sideFrom: relation.sideFrom,
+        endX: endX,
+        endY: endY,
+        sideTo: relation.sideTo
+    };
+}
+
+
+/*
+* Возвращает начальный индекс
+* */
+function getRelationStartSideIndex(sideArr, sideLength, step) {
+    //Число связей по текущей стороне
+    const relCount = sideArr.length;
+    //Число возможных начальных точек установки соединительных линий на текущей стороне
+    const sidePointCount = Math.floor(sideLength / step) + 1;
+    //Начальная позиция расстановки соединительных линий
+    const startIndex = Math.floor((sidePointCount - relCount) / 2);
+
+    // console.log("relCount", relCount);
+    // console.log("posCount", sidePointCount);
+    // console.log("startIndex", startIndex);
+    return startIndex;
 }
 
 
@@ -215,15 +322,17 @@ function getExtremePoints(relation, objectMap, pathes) {
 * Используется алгоритм А* и манхеттеновские расстояния
 *
 * objectRelation - объект - путь
+* indexBySide - порядковый индекс соединильной линии по рассматриваемой стороне
 * objectMap - плоская Map с объектами
 * pathes - уже расчитанные пути
 * */
-function calcPath(objectRelation, objectMap, pathes, stage, canvasLayer) {
-    // console.log("objectRelation", objectRelation);
+function calcPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasLayer) {
+    console.log("objectRelation", objectRelation);
 
     //Крайние точки для рисования линии (начальная и конечная)
     // console.log("relation.pointsQueueRight", objectRelation.pointsQueueRight);
-    let extremePoints = getExtremePoints(objectRelation, objectMap, pathes);
+    let extremePoints = getExtremePoints(objectRelation, indexBySide, objectMap);
+
     // console.log("relation.pointsQueueRight", objectRelation.pointsQueueRight);
     // console.log("---");
 
@@ -306,6 +415,7 @@ function calcPath(objectRelation, objectMap, pathes, stage, canvasLayer) {
 
 
             //Если почти пришли к конечной точке, т.е. nodePoint - около финальной точки
+            /*
             if (isLatestStepPoint(nodePoint.point, extremePoints, objectRelation)) {
                 //координаты предпоследней точки
                 const latestPoint = new Point(nodePoint.point.x, endPoint.y);
@@ -335,8 +445,15 @@ function calcPath(objectRelation, objectMap, pathes, stage, canvasLayer) {
                 //     canvasLayer.add(circle);
                 // }
 
+
                 //Сжимаем путь
                 // return compressPoints(path);
+
+                return path;
+
+             */
+            if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
+                const path = [startNodePoint.point, ...buildPathByPoint(nodePoint), endPoint];
                 return path;
             } else {
 
@@ -448,7 +565,7 @@ function isLatestStepPoint(stepPoint, extremePoints, objectRelation) {
     //     console.log("extremePoints", extremePoints);
     // }
 
-    if (extremePoints.toSide === "left") {
+    if (extremePoints.sideTo === "left") {
         nextPoint = new Point(stepPoint.x + config.defaultStepX, stepPoint.y);
 
         //Определяем - находится ли точка stepPoint у границы объекта, т.е. если шагнуть еще в nextPoint - то попадем в сам объект
@@ -467,7 +584,7 @@ function isLatestStepPoint(stepPoint, extremePoints, objectRelation) {
                 }
             }
         }
-    } else if (extremePoints.toSide === "bottom") {
+    } else if (extremePoints.sideTo === "bottom") {
         nextPoint = new Point(stepPoint.x, stepPoint.y - config.defaultStepY);
 
         if (isPointInObject(nextPoint, objectRelation.to)) {
@@ -481,7 +598,7 @@ function isLatestStepPoint(stepPoint, extremePoints, objectRelation) {
                 }
             }
         }
-    } else if (extremePoints.toSide === "right") {
+    } else if (extremePoints.sideTo === "right") {
         nextPoint = new Point(stepPoint.x - config.defaultStepX, stepPoint.y);
 
         if (isPointInObject(nextPoint, objectRelation.to)) {
@@ -495,7 +612,7 @@ function isLatestStepPoint(stepPoint, extremePoints, objectRelation) {
                 }
             }
         }
-    } else if (extremePoints.toSide === "top") {
+    } else if (extremePoints.sideTo === "top") {
         nextPoint = new Point(stepPoint.x, stepPoint.y + config.defaultStepY);
 
         if (isPointInObject(nextPoint, objectRelation.to)) {
@@ -564,6 +681,8 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
     if (!closed.has(pointHashCode)) {
         // console.log("not closed");
 
+        /*
+        //ToDo: сократить число просматриваемых точек
         //Отсекаем точки в которые нет смысла идти - они отдаляют наш искомый путь
         if (Func.notNull(nodePoint.parent)
             && Func.notNull(nodePoint.parent.parent)
@@ -578,6 +697,8 @@ function tryStep(nodePoint, closed, objectMap, endPoint) {
                 return false;
             }
         }
+         */
+
 
         //Можем идти только по положительны координатам (условно)
         if (nodePoint.point.x >= 0 && nodePoint.point.y >= 0) {
