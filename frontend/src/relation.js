@@ -60,6 +60,8 @@ export function calcAllPathes(relations, diagramObject, stage, canvasLayer) {
 
             calcPathesBySide(obj.relations.left, obj, objectMap, resultPathes, stage, canvasLayer);
             calcPathesBySide(obj.relations.right, obj, objectMap, resultPathes, stage, canvasLayer);
+            calcPathesBySide(obj.relations.top, obj, objectMap, resultPathes, stage, canvasLayer);
+            calcPathesBySide(obj.relations.bottom, obj, objectMap, resultPathes, stage, canvasLayer);
         }
 
     }
@@ -138,8 +140,9 @@ function calcPathesBySide(sideArr, obj, objectMap, resultPathes, stage, canvasLa
     for (let i = 0; i < sideArr.length; i++) {
         const rel = sideArr[i];
         const objectRelation = new ObjectRelation(obj, objectMap.get(rel.to), rel);
+
         //Линия, состоящая из точек от одного объекта до другого
-        let pathPoints = calcPath(objectRelation, i, objectMap, resultPathes, stage, canvasLayer);
+        let pathPoints = calcRelationPath(objectRelation, i, objectMap, resultPathes, stage, canvasLayer);
 
         const path = {points: pathPoints, color: rel.color};
         resultPathes.push(path);
@@ -326,8 +329,10 @@ function getRelationStartSideIndex(sideArr, sideLength, step) {
 * objectMap - плоская Map с объектами
 * pathes - уже расчитанные пути
 * */
-function calcPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasLayer) {
+function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasLayer) {
     console.log("objectRelation", objectRelation);
+    console.log("pathes", pathes);
+
 
     //Крайние точки для рисования линии (начальная и конечная)
     // console.log("relation.pointsQueueRight", objectRelation.pointsQueueRight);
@@ -384,20 +389,21 @@ function calcPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasL
         if (!closed.has(pointHashCode)) {
             closed.add(pointHashCode);  //Помечаем что точка посещена
 
-            // let circle = new Konva.Circle({
-            //     x: nodePoint.point.x,
-            //     y: nodePoint.point.y,
-            //     radius: 3,
-            //     fill: '#62a0ce',
-            //     stroke: '#458ba9',
-            //     strokeWidth: 1,
-            // });
-            // circle.on('mouseover', function () {
-            //     const mousePos = stage.getPointerPosition();
-            //     console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.priority);
-            // });
-            // canvasLayer.add(circle);
-
+            // if (objectRelation.to.id === "ccc") {
+            //     let circle = new Konva.Circle({
+            //         x: nodePoint.point.x,
+            //         y: nodePoint.point.y,
+            //         radius: 3,
+            //         fill: '#62a0ce',
+            //         stroke: '#458ba9',
+            //         strokeWidth: 1,
+            //     });
+            //     circle.on('mouseover', function () {
+            //         const mousePos = stage.getPointerPosition();
+            //         console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.priority);
+            //     });
+            //     canvasLayer.add(circle);
+            // }
 
             // const txt = new Konva.Text({
             //     x: nodePoint.point.x - 3,
@@ -457,30 +463,6 @@ function calcPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasL
                 return path;
             } else {
 
-
-                //Убрать: Предыдущий вариант проверки - Если пришли к финальной точке
-                /*
-                if (nodePoint.point.x === endPoint.x && nodePoint.point.y === endPoint.y) {
-                    const path = [startNodePoint.point, ...buildPathByPoint(nodePoint)];
-
-                    // for (let p of path) {
-                    //     let circle = new Konva.Circle({
-                    //         x: p.x,
-                    //         y: p.y,
-                    //         radius: 5,
-                    //         fill: '#ff0000',
-                    //         stroke: '#540303',
-                    //         strokeWidth: 1,
-                    //     });
-                    //     canvasLayer.add(circle);
-                    // }
-
-                    //Результат, включая стартовую точку
-                    return compressPoints(path);
-                }
-                 */
-
-
                 //Защита от зацикливания
                 exitIterator++;
                 if (exitIterator > 10000) {
@@ -513,7 +495,6 @@ function calcPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasL
                     if (isOccupiedPoint(stepNodePoint.point, pathes)) {
                         stepNodePoint.priority += 100;
                         // console.log("occupied 3");
-
                     }
                     open.push(stepNodePoint);
                 }
@@ -540,8 +521,8 @@ function calcPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasL
 function isOccupiedPoint(point, pathes) {
     //ToDo: переписать на использование set
     for (let i = 0; i < pathes.length; i++) {
-        for (let j = 0; j < pathes[i].length; j++) {
-            if (pathes[i][j].x === point.x && pathes[i][j].y === point.y) {
+        for (let j = 0; j < pathes[i].points.length; j++) {
+            if (pathes[i].points[j].x === point.x && pathes[i].points[j].y === point.y) {
                 // console.log("Equal", pathes[i][0]);
                 return true;
             }

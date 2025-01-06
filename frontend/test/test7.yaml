@@ -6,6 +6,13 @@ data:
       layout: inline
       name: group1
       objects:
+        group21:
+          name: group21
+          objects:
+            aaa:
+              marginY: 100
+              type: box
+              name: aaa
         group22:
           name: group22
           layout: column
@@ -16,24 +23,18 @@ data:
             ccc:
               type: box
               name: ccc
+              marginY: 50
             ddd:
               type: box
               name: ddd
               marginY: 50
-        group21:
-          name: group21
-          objects:
-            aaa:
-              marginY: 100
-              type: box
-              name: aaa
 
 relations:
   aaa-ddd:
     from: aaa
     to: ddd
     color: "#0000ff"
-    sideFrom: right
+    sideFrom: top
   aaa-bbb:
     from: aaa
     to: bbb
