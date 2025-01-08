@@ -130,37 +130,6 @@ function initObjectLayout(obj, lastObj, parent) {
 
 
 /*
-* Определение точек для соединительных линий
-* */
-function initObjectConnectionPoints(object) {
-    //Очереди возможных точек слева/справа
-    let verticalPointsQueue = [];
-    for (let i = config.defaultStepY; i <= object.height / 2; i = i + config.defaultStepY) {
-        verticalPointsQueue.unshift(i);
-        if (object.height - i !== i) {
-            verticalPointsQueue.unshift(object.height - i);
-        }
-    }
-
-    //Очереди возможных точек внизу/вверху
-    let horizontalPointsQueue = [];
-    for (let i = config.defaultStepX; i <= object.width / 2; i = i + config.defaultStepX) {
-        horizontalPointsQueue.unshift(i);
-        if (object.width - i !== i) {
-            horizontalPointsQueue.unshift(object.width - i);
-        }
-    }
-
-    object.pointsQueueRight = verticalPointsQueue;
-    object.pointsQueueLeft = verticalPointsQueue;
-    object.pointsQueueTop = horizontalPointsQueue;
-    object.pointsQueueBottom = horizontalPointsQueue;
-
-    return object;
-}
-
-
-/*
 * Расчет координат для каждого объекта.
 * Координаты расстановки объектов - относительные
 * */
@@ -202,8 +171,6 @@ export function calcLayout(object, lastObj, parent) {
             object.height = heightObjX + defaultMarginY;
         }
     }
-
-    object = initObjectConnectionPoints(object);
 
     return object;
 }

@@ -288,6 +288,14 @@ function getExtremePoints(relation, indexBySide, objectMap) {
         const startIndex = getRelationStartSideIndex(relation.from.relations.right, relation.from.height, config.defaultStepY);
         startX = absolutePointFromObj.x + relation.from.width;
         startY = absolutePointFromObj.y + config.defaultStepY * (startIndex + indexBySide);
+    } else if (relation.sideFrom === "top") {
+        const startIndex = getRelationStartSideIndex(relation.from.relations.top, relation.from.width, config.defaultStepX);
+        startX = absolutePointFromObj.x + config.defaultStepX * (startIndex + indexBySide);
+        startY = absolutePointFromObj.y;
+    } else if (relation.sideFrom === "bottom") {
+        const startIndex = getRelationStartSideIndex(relation.from.relations.bottom, relation.from.width, config.defaultStepX);
+        startX = absolutePointFromObj.x + config.defaultStepX * (startIndex + indexBySide);
+        startY = absolutePointFromObj.y + relation.from.height;
     }
 
 
@@ -331,14 +339,11 @@ function getRelationStartSideIndex(sideArr, sideLength, step) {
 * */
 function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage, canvasLayer) {
     console.log("objectRelation", objectRelation);
-    console.log("pathes", pathes);
-
-
     //Крайние точки для рисования линии (начальная и конечная)
     // console.log("relation.pointsQueueRight", objectRelation.pointsQueueRight);
     let extremePoints = getExtremePoints(objectRelation, indexBySide, objectMap);
 
-    // console.log("relation.pointsQueueRight", objectRelation.pointsQueueRight);
+    console.log("extremePoints", extremePoints);
     // console.log("---");
 
 
@@ -403,17 +408,17 @@ function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage,
             //         console.log('x: ' + nodePoint.point.x + ', y: ' + nodePoint.point.y + ', level: ' + nodePoint.priority);
             //     });
             //     canvasLayer.add(circle);
-            // }
 
-            // const txt = new Konva.Text({
-            //     x: nodePoint.point.x - 3,
-            //     y: nodePoint.point.y - 4,
-            //     text: nodePoint.level,
-            //     fontSize: 10,
-            //     fontFamily: 'Calibri',
-            //     fill: 'red',
-            // });
-            // canvasLayer.add(txt);
+                // const txt = new Konva.Text({
+                //     x: nodePoint.point.x - 3,
+                //     y: nodePoint.point.y - 4,
+                //     text: nodePoint.priority,
+                //     fontSize: 10,
+                //     fontFamily: 'Calibri',
+                //     fill: 'red',
+                // });
+                // canvasLayer.add(txt);
+            // }
 
             // console.log("---------------");
             // console.log("Point: ", pointHashCode);
@@ -473,9 +478,14 @@ function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage,
 
                 //вверх
                 let stepNodePoint = new NodePoint(new Point(nodePoint.point.x, nodePoint.point.y - config.defaultStepY), nodePoint, nodePoint.priority + 1, 1);
+
+                if (objectRelation.to.id === "ccc" && stepNodePoint.point.x === 210 && stepNodePoint.point.y === 200) {
+                    console.log("TOP stepNodePoint", stepNodePoint);
+                }
+
                 if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
                     if (isOccupiedPoint(stepNodePoint.point, pathes)) {
-                        stepNodePoint.priority += 100;
+                        stepNodePoint.priority += config.relationPriorityKoef;
                         // console.log("occupied 1");
                     }
                     open.push(stepNodePoint);
@@ -484,7 +494,7 @@ function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage,
                 stepNodePoint = new NodePoint(new Point(nodePoint.point.x + config.defaultStepX, nodePoint.point.y), nodePoint, nodePoint.priority + 1, 2);
                 if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
                     if (isOccupiedPoint(stepNodePoint.point, pathes)) {
-                        stepNodePoint.priority += 100;
+                        stepNodePoint.priority += config.relationPriorityKoef;
                         // console.log("occupied 2");
                     }
                     open.push(stepNodePoint);
@@ -493,7 +503,7 @@ function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage,
                 stepNodePoint = new NodePoint(new Point(nodePoint.point.x, nodePoint.point.y + config.defaultStepY), nodePoint, nodePoint.priority + 1, 3);
                 if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
                     if (isOccupiedPoint(stepNodePoint.point, pathes)) {
-                        stepNodePoint.priority += 100;
+                        stepNodePoint.priority += config.relationPriorityKoef;
                         // console.log("occupied 3");
                     }
                     open.push(stepNodePoint);
@@ -502,7 +512,7 @@ function calcRelationPath(objectRelation, indexBySide, objectMap, pathes, stage,
                 stepNodePoint = new NodePoint(new Point(nodePoint.point.x - config.defaultStepX, nodePoint.point.y), nodePoint, nodePoint.priority + 1, 4);
                 if (tryStep(stepNodePoint, closed, cleanedObjectMap, endPoint)) {
                     if (isOccupiedPoint(stepNodePoint.point, pathes)) {
-                        stepNodePoint.priority += 100;
+                        stepNodePoint.priority += config.relationPriorityKoef;
                         // console.log("occupied 4");
                     }
                     open.push(stepNodePoint);

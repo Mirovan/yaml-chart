@@ -39,7 +39,9 @@ relations:
     from: aaa
     to: bbb
     color: "#ff0000"
+    sideFrom: top
   aaa-ccc:
     from: aaa
     to: ccc
     color: "#00ff00"
+    sideFrom: top
