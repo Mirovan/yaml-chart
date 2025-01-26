@@ -266,113 +266,152 @@ export function dataObjectToMap(object, parent) {
 
 
 /**
- * Обновление списка связей.
- * Для каждого объекта добавляется 4 списка с исходящими связями от разных сторон
+ * Обновление списка ИСХОДЯЩИХ и ВХОДЯЩИХ связей.
+ * Для каждого объекта добавляется 4 списка с исходящими связями от разных сторон и 4 списка с входящими
  * */
-export function updateObjectRelations(object, relations, objectMap) {
-    //Создаем массивы со списком соединительных линий, если надо
-    if (Func.isNull(object.relations)) {
-        object.relations = {top: [], right: [], bottom: [], left: []};
+export function setObjectsInOutRelations(relations, objectMap) {
+    //формируем Map всех связей.
+    //Ключ - id объекта, значение - массив его ИСХОДЯЩИХ связей
+    const objectOutRelationMap = new Map();
+    const objectInRelationMap = new Map();
+    for (let rel of relations) {
+        const fromObj = objectMap.get(rel.from);
+        const toObj = objectMap.get(rel.to);
+
+        //Заполняем коллекцию исходящих линий
+        if (!objectOutRelationMap.has(fromObj.id)) {
+            objectOutRelationMap.set(fromObj.id, []);
+        }
+        const relArrOut = objectOutRelationMap.get(fromObj.id);
+        relArrOut.push(rel);
+        objectOutRelationMap.set(fromObj.id, relArrOut);
+
+        //Заполняем коллекцию входящих линий
+        if (!objectInRelationMap.has(toObj.id)) {
+            objectInRelationMap.set(toObj.id, []);
+        }
+        const relArrIn = objectInRelationMap.get(toObj.id);
+        relArrIn.push(rel);
+        objectInRelationMap.set(toObj.id, relArrIn);
     }
 
-    if (Func.notNull(relations)) {
-        //Обновляем связи для каждого объекта,
-        //указывая из какой стороны соединительная линия выходит и куда приходит (если не задано явно)
-        for (let rel of relations) {
-            //находим объект куда должна прийти связь
-            const objectTo = objectMap.get(rel.to);
-            //↗️ ➡️ ↘️  fromObj стоит слева, toObj стоит справа
-            if (object.absoluteX < objectTo.absoluteX) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "right";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "left";
-                }
-            }
-            //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
-            else if (object.absoluteX > objectTo.absoluteX) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "left";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "right";
-                }
-            }
-            //⬆️ fromObj стоит снизу, toObj стоит сверху
-            else if (object.absoluteX === objectTo.absoluteX && object.absoluteY > objectTo.absoluteY) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "top";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "bottom";
-                }
-            }
-            //⬇️ fromObj стоит сверху, toObj стоит снизу
-            else if (object.absoluteX === objectTo.absoluteX && object.absoluteY < objectTo.absoluteY) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "bottom";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "top";
-                }
-            }
-            //по умолчанию
-            else {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "right";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "left";
+    //Перебираем все объекты и добавляем каждому ИСХОДЯЩИЕ связи
+    //Для каждого объекта добавляется 4 списка с ИСХОДЯЩИМИ связями от разных сторон
+    for (let key of objectMap.keys()) {
+        const object = objectMap.get(key);
+        const outRelations = objectOutRelationMap.get(object.id);
+        const inRelations = objectInRelationMap.get(object.id);
+
+        //Создаем массивы со списком соединительных линий, если надо
+        if (Func.isNull(object.outRelations)) {
+            object.outRelations = {top: [], right: [], bottom: [], left: []};
+        }
+        if (Func.isNull(object.inRelations)) {
+            object.inRelations = {top: [], right: [], bottom: [], left: []};
+        }
+
+        if (Func.notNull(outRelations)) {
+            //Обновляем связи для каждого объекта,
+            //указывая из какой стороны соединительная линия выходит и куда приходит (если не задано явно)
+            for (let rel of outRelations) {
+                //обновляем у объекта списки соединительных линий
+                if (rel.sideFrom === "right") {
+                    object.outRelations.right.push(rel);
+                } else if (rel.sideFrom === "bottom") {
+                    object.outRelations.bottom.push(rel);
+                } else if (rel.sideFrom === "left") {
+                    object.outRelations.left.push(rel);
+                } else if (rel.sideFrom === "top") {
+                    object.outRelations.top.push(rel);
                 }
             }
 
-            //обновляем у объекта списки соединительных линий
-            if (rel.sideFrom === "right") {
-                object.relations.right.push(rel);
-            } else if (rel.sideFrom === "bottom") {
-                object.relations.bottom.push(rel);
-            } else if (rel.sideFrom === "left") {
-                object.relations.left.push(rel);
-            } else if (rel.sideFrom === "top") {
-                object.relations.top.push(rel);
+            //Сортируем списки соединительных линий
+            object.outRelations.right.sort(verticalComparator);
+            object.outRelations.bottom.sort(horizontalComparator);
+            object.outRelations.left.sort(verticalComparator);
+            object.outRelations.top.sort(horizontalComparator);
+
+            /*
+            * Компаратор для соединительных линий.
+            * a, b - соединительные линии из yaml.
+            * Сортируются по вертикали от меньшего к большему (выше/ниже) для конечных объектов
+            * */
+            function verticalComparator(a, b) {
+                const obj1 = objectMap.get(a.to);
+                const obj2 = objectMap.get(b.to);
+                if (obj1.absoluteY < obj2.absoluteY) {
+                    return -1;
+                } else if (obj1.absoluteY > obj2.absoluteY) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+
+            function horizontalComparator(a, b) {
+                const obj1 = objectMap.get(a.to);
+                const obj2 = objectMap.get(b.to);
+                if (obj1.absoluteY < obj2.absoluteY) {
+                    return -1;
+                } else if (obj1.absoluteY > obj2.absoluteY) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
         }
 
-        //Сортируем списки соединительных линий
-        object.relations.right.sort(verticalComparator);
-        object.relations.bottom.sort(horizontalComparator);
-        object.relations.left.sort(verticalComparator);
-        object.relations.top.sort(horizontalComparator);
+        if (Func.notNull(inRelations)) {
+            for (let rel of inRelations) {
+                //обновляем у объекта списки соединительных линий
+                if (rel.sideTo === "right") {
+                    object.inRelations.right.push(rel);
+                } else if (rel.sideTo === "bottom") {
+                    object.inRelations.bottom.push(rel);
+                } else if (rel.sideTo === "left") {
+                    object.inRelations.left.push(rel);
+                } else if (rel.sideTo === "top") {
+                    object.inRelations.top.push(rel);
+                }
+            }
 
-        /*
-        * Компаратор для соединительных линий.
-        * a, b - соединительные линии из yaml.
-        * Сортируются по вертикали от меньшего к большему (выше/ниже) для конечных объектов
-        * */
-        function verticalComparator(a, b) {
-            const obj1 = objectMap.get(a.to);
-            const obj2 = objectMap.get(b.to);
-            if (obj1.absoluteY < obj2.absoluteY) {
-                return -1;
-            } else if (obj1.absoluteY > obj2.absoluteY) {
-                return 1;
-            } else {
-                return 0;
+            //Сортируем списки соединительных линий
+            object.inRelations.right.sort(verticalComparator);
+            object.inRelations.bottom.sort(horizontalComparator);
+            object.inRelations.left.sort(verticalComparator);
+            object.inRelations.top.sort(horizontalComparator);
+
+            /*
+            * Компаратор для соединительных линий.
+            * a, b - соединительные линии из yaml.
+            * Сортируются по вертикали от меньшего к большему (выше/ниже) для конечных объектов
+            * */
+            function verticalComparator(a, b) {
+                const obj1 = objectMap.get(a.to);
+                const obj2 = objectMap.get(b.to);
+                if (obj1.absoluteY < obj2.absoluteY) {
+                    return -1;
+                } else if (obj1.absoluteY > obj2.absoluteY) {
+                    return 1;
+                } else {
+                    return 0;
+                }
+            }
+
+            function horizontalComparator(a, b) {
+                const obj1 = objectMap.get(a.to);
+                const obj2 = objectMap.get(b.to);
+                if (obj1.absoluteY < obj2.absoluteY) {
+                    return -1;
+                } else if (obj1.absoluteY > obj2.absoluteY) {
+                    return 1;
+                } else {
+                    return 0;
+                }
             }
         }
 
-        function horizontalComparator(a, b) {
-            const obj1 = objectMap.get(a.to);
-            const obj2 = objectMap.get(b.to);
-            if (obj1.absoluteY < obj2.absoluteY) {
-                return -1;
-            } else if (obj1.absoluteY > obj2.absoluteY) {
-                return 1;
-            } else {
-                return 0;
-            }
-        }
     }
 }
 

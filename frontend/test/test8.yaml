@@ -6,28 +6,40 @@ data:
       layout: inline
       name: group1
       objects:
-        group21:
-          name: group21
-          objects:
-            bbb:
-              type: box
-              name: bbb
         group22:
           name: group22
           layout: column
           objects:
+            bbb:
+              type: box
+              name: bbb
+              marginY: 100
             ccc:
               type: box
               name: ccc
-              marginY: 100
             ddd:
               type: box
               name: ddd
+        group21:
+          name: group21
+          objects:
+            aaa:
+              type: box
+              name: aaa
 
 relations:
-  ccc-bbb:
+  bbb-aaa:
+    from: bbb
+    to: aaa
+    color: "#0000ff"
+    sideTo: bottom
+  ccc-aaa:
     from: ccc
-    to: bbb
-  ddd-bbb:
+    to: aaa
+    color: "#ff0000"
+    sideTo: bottom
+  ddd-aaa:
     from: ddd
-    to: bbb
+    to: aaa
+    color: "#00ff00"
+    sideTo: bottom
