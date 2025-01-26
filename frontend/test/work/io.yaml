@@ -14,8 +14,10 @@ data:
               objects:
                 io-endpoint-1:
                   name: https://наш.дом.рф/io
+                  type: box
                 io-endpoint-2:
                   name: https://наш.дом.рф/io/api
+                  type: box
     dom-internal:
       color: "#cfcfcf"
       type: group

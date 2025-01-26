@@ -45,49 +45,52 @@ export function calcAllPathes(rawRelations, diagramObject, stage, canvasLayer) {
             //находим объект куда должна прийти связь
             const objectFrom = objectMap.get(rel.from);
             const objectTo = objectMap.get(rel.to);
-            //↗️ ➡️ ↘️  fromObj стоит слева, toObj стоит справа
-            if (objectFrom.absoluteX < objectTo.absoluteX) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "right";
+
+            if (Func.notNull(objectFrom) && Func.notNull(objectTo)) {
+                //↗️ ➡️ ↘️  fromObj стоит слева, toObj стоит справа
+                if (objectFrom.absoluteX < objectTo.absoluteX) {
+                    if (Func.isNull(rel.sideFrom)) {
+                        rel.sideFrom = "right";
+                    }
+                    if (Func.isNull(rel.sideTo)) {
+                        rel.sideTo = "left";
+                    }
                 }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "left";
+                //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
+                else if (objectFrom.absoluteX > objectTo.absoluteX) {
+                    if (Func.isNull(rel.sideFrom)) {
+                        rel.sideFrom = "left";
+                    }
+                    if (Func.isNull(rel.sideTo)) {
+                        rel.sideTo = "right";
+                    }
                 }
-            }
-            //↙️ ⬅️ ↖️  fromObj стоит справа, toObj стоит слева
-            else if (objectFrom.absoluteX > objectTo.absoluteX) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "left";
+                //⬆️ fromObj стоит снизу, toObj стоит сверху
+                else if (objectFrom.absoluteX === objectTo.absoluteX && objectFrom.absoluteY > objectTo.absoluteY) {
+                    if (Func.isNull(rel.sideFrom)) {
+                        rel.sideFrom = "top";
+                    }
+                    if (Func.isNull(rel.sideTo)) {
+                        rel.sideTo = "bottom";
+                    }
                 }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "right";
+                //⬇️ fromObj стоит сверху, toObj стоит снизу
+                else if (objectFrom.absoluteX === objectTo.absoluteX && objectFrom.absoluteY < objectTo.absoluteY) {
+                    if (Func.isNull(rel.sideFrom)) {
+                        rel.sideFrom = "bottom";
+                    }
+                    if (Func.isNull(rel.sideTo)) {
+                        rel.sideTo = "top";
+                    }
                 }
-            }
-            //⬆️ fromObj стоит снизу, toObj стоит сверху
-            else if (objectFrom.absoluteX === objectTo.absoluteX && objectFrom.absoluteY > objectTo.absoluteY) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "top";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "bottom";
-                }
-            }
-            //⬇️ fromObj стоит сверху, toObj стоит снизу
-            else if (objectFrom.absoluteX === objectTo.absoluteX && objectFrom.absoluteY < objectTo.absoluteY) {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "bottom";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "top";
-                }
-            }
-            //по умолчанию
-            else {
-                if (Func.isNull(rel.sideFrom)) {
-                    rel.sideFrom = "right";
-                }
-                if (Func.isNull(rel.sideTo)) {
-                    rel.sideTo = "left";
+                //по умолчанию
+                else {
+                    if (Func.isNull(rel.sideFrom)) {
+                        rel.sideFrom = "right";
+                    }
+                    if (Func.isNull(rel.sideTo)) {
+                        rel.sideTo = "left";
+                    }
                 }
             }
 
@@ -272,22 +275,14 @@ function getRelationPointFrom(relation, objectMap) {
 * */
 function getExtremePoints(relation, objectMap) {
     const pointFromXY = getRelationPointFrom(relation, objectMap);
-    let startX = pointFromXY.x;
-    let startY = pointFromXY.y;
-
     const pointToXY = getRelationPointTo(relation, objectMap);
-    let endX = pointToXY.x;
-    let endY = pointToXY.y;
-
-    console.log("pointFromXY", pointFromXY);
-    console.log("pointToXY", pointToXY);
 
     return {
-        startX: startX,
-        startY: startY,
+        startX: pointFromXY.x,
+        startY: pointFromXY.y,
         sideFrom: relation.sideFrom,
-        endX: endX,
-        endY: endY,
+        endX: pointToXY.x,
+        endY: pointToXY.y,
         sideTo: relation.sideTo
     };
 }

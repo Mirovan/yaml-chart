@@ -24,8 +24,8 @@ document.addEventListener('DOMContentLoaded', function () {
     });
     stage.add(canvasLayer);
 
-    // fetch('http://localhost:3000/work/io.yaml')
-    fetch('http://localhost:3000/test8.yaml')
+    fetch('http://localhost:3000/work/io.yaml')
+    // fetch('http://localhost:3000/test9.yaml')
         .then(response => response.text())
         .then(response => {
             initManualRelation();
@@ -77,7 +77,7 @@ function reloadChart(yaml) {
         canvasLayer.add(line);
     }
 
-    drawLineNet(canvasLayer);
+    // drawLineNet(canvasLayer);
 }
 
 

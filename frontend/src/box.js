@@ -278,21 +278,26 @@ export function setObjectsInOutRelations(relations, objectMap) {
         const fromObj = objectMap.get(rel.from);
         const toObj = objectMap.get(rel.to);
 
+
         //Заполняем коллекцию исходящих линий
-        if (!objectOutRelationMap.has(fromObj.id)) {
-            objectOutRelationMap.set(fromObj.id, []);
+        if (Func.notNull(fromObj)) {
+            if (!objectOutRelationMap.has(fromObj.id)) {
+                objectOutRelationMap.set(fromObj.id, []);
+            }
+            const relArrOut = objectOutRelationMap.get(fromObj.id);
+            relArrOut.push(rel);
+            objectOutRelationMap.set(fromObj.id, relArrOut);
         }
-        const relArrOut = objectOutRelationMap.get(fromObj.id);
-        relArrOut.push(rel);
-        objectOutRelationMap.set(fromObj.id, relArrOut);
 
         //Заполняем коллекцию входящих линий
-        if (!objectInRelationMap.has(toObj.id)) {
-            objectInRelationMap.set(toObj.id, []);
+        if (Func.notNull(toObj)) {
+            if (!objectInRelationMap.has(toObj.id)) {
+                objectInRelationMap.set(toObj.id, []);
+            }
+            const relArrIn = objectInRelationMap.get(toObj.id);
+            relArrIn.push(rel);
+            objectInRelationMap.set(toObj.id, relArrIn);
         }
-        const relArrIn = objectInRelationMap.get(toObj.id);
-        relArrIn.push(rel);
-        objectInRelationMap.set(toObj.id, relArrIn);
     }
 
     //Перебираем все объекты и добавляем каждому ИСХОДЯЩИЕ связи

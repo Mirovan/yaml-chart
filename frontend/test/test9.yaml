@@ -1,0 +1,81 @@
+#deployment [io] Инфраструктурные облигации
+data:
+  color: "#ededed"
+  layout: inline
+  objects:
+    NGINX:
+      name: nginx (tls)
+      layout: column
+      objects:
+        io-endpoint-1:
+          type: box
+
+          name: https://наш.дом.рф/io
+        io-endpoint-2:
+          type: box
+
+          name: https://наш.дом.рф/io/api
+    dom-internal:
+      color: "#cfcfcf"
+      type: group
+      layout: inline
+      name: ДОМ.РФ internal
+      objects:
+
+        io-group-frontend:
+          marginY: 200
+          border: none
+          objects:
+            io-ingress-1:
+              color: "#c9e7b7"
+              type: box
+              name: io.apps.k8s.<env>.domoy.ru/(.*)
+
+
+
+
+relations:
+  #nginx to ingress
+  io-endpoint-asd:
+    from: io-endpoint-1
+    to: io-ingress-1
+
+  io-ingress-1-io-frontend-node-app-service:
+    from: io-ingress-1
+    to: io-frontend-node-app-service
+  io-frontend-node-app-deployment-io-frontend-node-app-service:
+    from: io-frontend-node-app-deployment
+    to: io-frontend-node-app-service
+
+  io-gotenberg-node-app-deployment-io-gotenberg-node-app-service:
+    from: io-gotenberg-node-app-deployment
+    to: io-gotenberg-node-app-service
+
+  io-ahd-adapter-node-app-dpl-io-ahd-adapter-node-app-svc:
+    from: io-ahd-adapter-node-app-dpl
+    to: io-ahd-adapter-node-app-svc
+
+  io-endpoint-2-io-ingress-2:
+    from: io-endpoint-2
+    to: io-ingress-2
+  io-ingress-2-io-backend-node-app-service-1:
+    from: io-ingress-2
+    to: io-backend-node-app-service-1
+  io-backend-node-app-deployment-io-backend-node-app-service-1:
+    from: io-backend-node-app-deployment
+    to: io-backend-node-app-service-1
+
+  io-ingress-3-io-backend-node-app-service-2:
+    from: io-ingress-3
+    to: io-backend-node-app-service-2
+  io-backend-node-app-deployment-io-backend-node-app-service-2:
+    from: io-backend-node-app-deployment
+    to: io-backend-node-app-service-2
+
+  io-payments-1c-node-app-dpl-io-payments-1c-node-app-svc:
+    from: io-payments-1c-node-app-dpl
+    to: io-payments-1c-node-app-svc
+
+  io-backend-node-app-deployment-io-gotenberg-node-app-service:
+    from: io-backend-node-app-deployment
+    to: io-gotenberg-node-app-service
